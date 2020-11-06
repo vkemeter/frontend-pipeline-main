@@ -1,6 +1,6 @@
 {
-  "name": "s7-fe-pipeline-main",
-  "version": "1.0.2",
+  "name": "frontend-pipeline-main",
+  "version": "0.0.1",
   "description": "The Supseven Main Frontend Pipeline. Use this to create Your own FE-Pipeline.",
   "engines": {
     "node": ">=14.15.0"
