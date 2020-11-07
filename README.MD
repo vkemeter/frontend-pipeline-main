@@ -1,4 +1,4 @@
-# supseven fe pipline
+# frontend pipeline main package
 
 - requires node 14
 - gulp
@@ -9,3 +9,9 @@
 - sassdash
 - bootstrap 4.5.3
 - family.scss
+
+1. `yarn init`
+2. `yarn add https://github.com/vkemeter/frontend-pipeline-main.git`
+3. edit config files for your need.
+
+see a example package here: https://github.com/vkemeter/frontend-pipeline-package
