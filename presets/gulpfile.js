@@ -7,7 +7,17 @@ var _gulp = require('gulp'),
 
 _taskLoader.loadTasks();
 
-_gulp.task('default', function(cb){
-   console.log(_config());
-   cb();
-});
+/** an example default task */
+_gulp.task('default',
+    _gulp.series(
+        'Misc:CONFIG',
+        'Frontend:FONTS',
+        _gulp.parallel(
+            'Backend:JS',
+            'Backend:SCSS',
+            'Frontend:IE11',
+            'Frontend:JS',
+            'Frontend:SCSS'
+        )
+    )
+);
