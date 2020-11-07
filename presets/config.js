@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function () {
-    let build = __dirname.substring(0, __dirname.indexOf('build-pipeline')) + 'build-pipeline',
+    let build = __dirname.substring(0, __dirname.indexOf(__dirname.split('/').splice(-1).pop())) + __dirname.split('/').splice(-1).pop(),
         theme = __dirname.substring(0, __dirname.indexOf('theme')) + 'theme',
         webRoot = __dirname.substring(0, __dirname.indexOf('app')) + 'app/public';
 
