@@ -1,7 +1,7 @@
 {
   "name": "frontend-pipeline-main",
-  "version": "0.0.1",
-  "description": "The Supseven Main Frontend Pipeline. Use this to create Your own FE-Pipeline.",
+  "version": "1.0.0",
+  "description": "A Frontend Pipeline Main Package. Require this in Your package.json and your are ready to go.",
   "engines": {
     "node": ">=14.15.0"
   },
