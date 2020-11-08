@@ -1,0 +1,13 @@
+/**
+ * shyt ie11 wrap for fixing awesome ie11 bugs
+ *
+ * usage:
+ * @include ie11-only-wrap-shizzle('.foo') {
+ *  // your styles here
+ * }
+ */
+@mixin ie11-only-wrap-shizzle($className) {
+  _:-ms-fullscreen, :root #{$className} {
+    @content;
+  }
+}

@@ -1,0 +1,79 @@
+/**
+ * use aspect ratio classes like the embed-responsive bootstrap native classes
+ * but with the benefit to use different aspect ratios for each breakpoint.
+ *
+ * e.g.: "aspect-ratio-xs aspect-ratio-xs-4by3 aspect-ratio-lg-16by9"
+ * means xs -> md the 4:3 ratio is used. and above 16:9
+ *
+ * this means, this element is from xs to biggest breakpoint a aspect-ratio element
+ * the ar for xs is 4by3 and from lg and up it is 16by9
+ * <div class="aspect-ratio-xs aspect-ratio-xs-4by3 aspect-ratio-lg-16by9">
+ *   <div class="aspect-ratio-xs-item">
+ *     i am an absoluteley positioned aspect ratio item
+ *   </div>
+ * </div>
+ *
+ * this means, the element is from lg and up a aspect-ratio element
+ * below lg it behaves like a normal element
+ * <div class="aspect-ratio-lg aspect-ratio-lg-16by9">
+ *   <div class="aspect-ratio-lg-item">
+ *     i am an absoluteley positioned aspect ratio item
+ *   </div>
+ * </div>
+ *
+ * have fun. kthxbye.
+ */
+.aspect-ratio {
+  @each $breakpoint in map-keys($grid-breakpoints) {
+    &-#{$breakpoint} {
+      &-item {
+        max-width: 100%;
+        height: auto;
+      }
+
+      @include media-breakpoint-up($breakpoint) {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        overflow: hidden;
+
+        &::before {
+          display: block;
+          content: "";
+        }
+
+        &-item {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+        }
+      }
+    }
+
+    @each $name, $ratio in $aspect-ratios {
+      $aspect-ratio-x: nth($ratio, 1);
+      $aspect-ratio-y: nth($ratio, 2);
+
+      @if $breakpoint == 'xs' {
+        &-#{$aspect-ratio-x}by#{$aspect-ratio-y} {
+          &::before {
+            padding-top: percentage($aspect-ratio-y / $aspect-ratio-x);
+          }
+        }
+      } @else {
+        &-#{$breakpoint}-#{$aspect-ratio-x}by#{$aspect-ratio-y} {
+          &::before {
+            @include media-breakpoint-up($breakpoint) {
+              padding-top: percentage($aspect-ratio-y / $aspect-ratio-x);
+            }
+          }
+        }
+      }
+    }
+  }
+}

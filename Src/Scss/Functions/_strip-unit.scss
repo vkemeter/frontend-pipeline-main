@@ -1,0 +1,7 @@
+/**
+ * strips units from values for calculations
+ * used in px-to-rem mixin
+ */
+@function strip-unit($num) {
+  @return $num / ($num * 0 + 1);
+}
