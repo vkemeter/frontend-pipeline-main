@@ -1,0 +1,12 @@
+/**
+ * a utility for setting background colors based on all
+ * available theme-colors defined in the theme-colors array
+ *
+ * usage:
+ * class="background-primary"
+ */
+@each $key, $value in $theme-colors {
+  .background-color-#{$key} {
+    background-color: _get($theme-colors, $key);
+  }
+}

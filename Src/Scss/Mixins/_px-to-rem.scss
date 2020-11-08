@@ -1,0 +1,13 @@
+/**
+ * a mixing to set a property as REM value with given PX value.
+ * sets a fallback to PX value. sometimes still needed.
+ *
+ * usage:
+ * @include px-to-rem(font-size, 18px);
+ */
+@mixin px-to-rem($property, $px, $unit: rem, $bp: 'default') {
+  $px: strip-unit($px);
+  $rem: rem($px, $unit, $bp);
+  #{$property}: #{$px}px;
+  #{$property}: #{$rem};
+}

@@ -1,0 +1,12 @@
+/**
+ * a utility for setting colors based on all
+ * available theme-colors defined in the theme-colors array
+ *
+ * usage:
+ * class="color-primary"
+ */
+@each $key, $value in $theme-colors {
+  .color-#{$key} {
+    color: _get($theme-colors, $key);
+  }
+}

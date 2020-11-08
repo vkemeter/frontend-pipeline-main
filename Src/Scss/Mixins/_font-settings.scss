@@ -1,0 +1,37 @@
+/**
+ * use mixing for setting up font-size and line-height (or any other pixel based setting)
+ * defined in the font-settings array
+ *
+ * no special calls needed. this mixin is used in the base/font-settings file
+ *
+ * include this in your font.scss or similar file
+ *
+ * usage: @include get-all-font-settings;
+ */
+@mixin get-all-font-settings() {
+  @each $breakpoint, $groups in $font-settings {
+    @each $group, $elements in _get($font-settings, $breakpoint) {
+      @each $element, $styles in _get($font-settings, '#{$breakpoint}' '#{$group}') {
+        #{$element} {
+          @each $style, $value in _get($font-settings, '#{$breakpoint}' '#{$group}' '#{$element}') {
+            @if $breakpoint == 'default' {
+              @if (str-index('#{$value}', 'px')) {
+                @include px-to-rem($style, $value, 'rem', $breakpoint);
+              } @else {
+                #{$style}: #{$value};
+              }
+            } @else {
+              @include media-breakpoint-up($breakpoint) {
+                @if (str-index('#{$value}', 'px')) {
+                  @include px-to-rem($style, $value, 'rem', $breakpoint);
+                } @else {
+                  #{$style}: #{$value};
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
