@@ -57,8 +57,7 @@ module.exports = function () {
                 watch: build + '/Src/JavaScript/**/*.js',
                 includeJquery: true,
                 modules: [
-                    // build +'/node_modules/basicscroll/dist/basicScroll.min.js',
-                    // build +'/node_modules/slick-carousel/slick/slick.min.js',
+                    build +'/node_modules/frontend-pipeline-main/Src/JavaScript/Plugins/plugin.Breakoints.js',
                 ]
             },
             fonts: {
