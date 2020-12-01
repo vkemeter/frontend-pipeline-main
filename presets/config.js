@@ -49,6 +49,15 @@ module.exports = function () {
                 dest: theme + '/Resources/Public/Css',
                 watch: build + '/Src/Scss/**/*.scss'
             },
+            typescript: {
+                enabled: true,
+                src: build + '/Src/TypeScript/',
+                entries: [
+                    build + '/Src/TypeScript/main.ts',
+                ],
+                dest: theme + '/Resources/Public/JavaScript/',
+                file: 'Bundle.js',
+            },
             javascript: {
                 enabled: true,
                 src: build + '/Src/JavaScript/Main.js',
