@@ -33,6 +33,7 @@ module.exports = function(done) {
             for (type in entry['export']) {
                 var _variableName = entry['export'][type].name,
                     _fileName = entry['export'][type].file,
+                    _advanced = entry['export'][type].advanced,
                     _return = [];
 
                 // get the values for the desired export file
@@ -47,8 +48,9 @@ module.exports = function(done) {
                     i = parseInt(i);
 
                     // get the line for each value depending on the
-                    // export type (scss/typoscript)
-                    _return.push(writeLn(values[i].key, _value, type));
+                    // export type (scss/typoscript/yaml)
+                    var _line = writeLn(values[i].key, _value, type, _advanced);
+                    _return.push(_line);
 
                     // add the additional line, if the additional key
                     // is set. very specific. dont know if that is a cool way
@@ -67,7 +69,7 @@ module.exports = function(done) {
                 }
 
                 // wrap and join the array with some comments and line breaks
-                var content = wrap(joinLines(_return, type), _variableName, type, _fileName);
+                var content = wrap(joinLines(_return, type), _variableName, type, _fileName, _advanced);
 
                 // finaly write the desired file to the folder given in the
                 // yaml file or log an error to the console if it fails
@@ -132,14 +134,23 @@ module.exports = function(done) {
      * @param type
      * @return {string}
      */
-    function writeLn(key, value, type) {
+    function writeLn(key, value, type, advanced = false) {
         var separator = {
             'scss': ': ',
             'constantsts': ' = '
         };
 
         if (type === 'yaml') {
-            return '- { key: '+ key +', value: \''+ value +'\' }';
+            if (advanced === true) {
+                var _line = '';
+                _line += '      "' + value.replace(' ', ':') + '":\r\n';
+                _line += '          title: "'+ value.replace(' ', ':') +'"\r\n';
+                _line += '          value: '+ value.replace(' ', ' / ');
+
+                return _line;
+            } else {
+                return '- { key: '+ key +', value: \''+ value +'\' }';
+            }
         }
 
         return key + (typeof separator[type] !== 'undefined' ? separator[type] : '') + value;
@@ -164,7 +175,7 @@ module.exports = function(done) {
      * @param fileName
      * @return {string}
      */
-    function wrap(string, variableName, type, fileName) {
+    function wrap(string, variableName, type, fileName, advanced = false) {
         var wrap = {
             'scss': {
                 'start': '$'+ variableName +': (\n',
@@ -180,6 +191,7 @@ module.exports = function(done) {
                 'start': variableName +': \r\n',
                 'end': '\r\n',
                 'comment': '#',
+                'advanced': 'imageManipulation:\r\n  cropVariants:\r\n    defaults:\r\n',
             },
         };
 
@@ -187,7 +199,7 @@ module.exports = function(done) {
         comment += wrap[type]['comment'] +' ' + fileName + ', created with gulp task and yaml config\n';
         comment += wrap[type]['comment'] +' created at: ' + new Date().toString() +'\n';
 
-        return comment + (typeof wrap[type] !== undefined ? wrap[type]['start'] : '') + string + (typeof wrap[type] !== undefined ? wrap[type]['end'] : '');
+        return comment + (typeof wrap[type] !== undefined ? (advanced === true ? wrap[type]['advanced'] +'      ' : '') + wrap[type]['start'] : '') + string + (typeof wrap[type] !== undefined ? wrap[type]['end'] : '');
     }
 };
 

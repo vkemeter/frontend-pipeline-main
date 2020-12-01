@@ -2,3 +2,4 @@ node_modules
 !presets/config.js
 !presets/config.yaml
 !presets/gulpfile.js
+.DS_Store
