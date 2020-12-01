@@ -12,12 +12,13 @@ _gulp.task('default',
     _gulp.series(
         'Misc:CONFIG',
         'Frontend:FONTS',
+        'Frontend:IMAGES',
         _gulp.parallel(
             'Backend:JS',
             'Backend:SCSS',
             'Frontend:IE11',
             'Frontend:JS',
-            'Frontend:SCSS'
+            'Frontend:SCSS',
         )
     )
 );

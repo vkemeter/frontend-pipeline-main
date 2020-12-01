@@ -66,16 +66,19 @@ module.exports = function () {
                 dest: theme + '/Resources/Public/Webfonts'
             },
             images: {
-                svg: {
-                    src: build + '/Build/Src/Images/Svg/**/*.svg',
-                    dest: build + '/Resources/Public/Images/Svg',
-                    watch: build + '/Build/Src/Images/Svg/**/*.svg'
-                },
-                svgSprites: {
-                    SocialIcons: build + '/Build/Src/Images/SvgSprites/SocialIcons/**/*.svg',
-                    watch: build + '/Build/Src/Images/SvgSprites/**/*.svg',
-                    scssDestDir: build + '/Build/Src/Scss/Utilities/SvgSprites/',
-                    parentDir: build + '/Build/Src/Images/SvgSprites/SocialIcons/'
+                enabled: true,
+                src: build + '/Src/Images/**/*',
+                dest: theme + '/Resources/Public/Images',
+                config: {
+                    pngquant: true,
+                    optipng: true,
+                    zopflipng: true,
+                    jpegRecompress: true,
+                    mozjpeg: true,
+                    gifsicle: true,
+                    svgo: true,
+                    concurrent: 10,
+                    quiet: false
                 }
             }
         },
