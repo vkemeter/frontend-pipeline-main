@@ -18,6 +18,7 @@ _gulp.task('default',
             'Backend:SCSS',
             'Frontend:IE11',
             'Frontend:JS',
+            'Frontend:TYPESCRIPT',
             'Frontend:SCSS',
         )
     )
