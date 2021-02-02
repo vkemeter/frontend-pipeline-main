@@ -93,6 +93,32 @@ module.exports = function () {
         },
         misc: {
             enabled: true
+        },
+        test: {
+            backstop: {
+                enabled: true,
+                id: "My Test",
+                report: [ "browser" ],
+                engine: "puppeteer",
+                engineOptions: {
+                    "args": ["--no-sandbox"]
+                },
+                asyncCaptureLimit: 5,
+                asyncCompareLimit: 50,
+                debug: false,
+                debugWindow: false,
+                paths: {
+                    "bitmaps_reference": build + "/Test/backstop/backstop_data/bitmaps_reference",
+                    "bitmaps_test": build + "/Test/backstop/backstop_data/bitmaps_test",
+                    "engine_scripts": build + "/Test/backstop/backstop_data/engine_scripts",
+                    "html_report": build + "/Test/backstop/backstop_data/html_report",
+                    "ci_report": build + "/Test/backstop/backstop_data/ci_report"
+                },
+                scripts: {
+                    onBeforeScript: build + "/node_modules/frontend-pipeline-main/test/backstop/engine_scripts/puppet/onBefore.js",
+                    onReadyScript: build + "/node_modules/frontend-pipeline-main/test/backstop/engine_scripts/puppet/onReady.js",
+                }
+            }
         }
     };
 };
