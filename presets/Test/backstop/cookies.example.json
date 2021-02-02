@@ -1,0 +1,20 @@
+[
+  {
+    "name": "supi-status",
+    "value": "0",
+    "domain": "www.supseven.at",
+    "path": "/",
+    "expires": 1614862007,
+    "httpOnly": false,
+    "secure": false
+  },
+  {
+    "name": "supi-allowed",
+    "value": "%5B%22_ga%2C%20_gid%2C%20_fbp%22%2C%22fe_typo_user%2C%20be_typo_user%2C%20be_lastLoginProvider%2C%20PHPSESSID%2C%20supi-status%2C%20supi-allowed%22%5D",
+    "domain": "www.supseven.at",
+    "path": "/",
+    "expires": 1614862007,
+    "httpOnly": false,
+    "secure": false
+  }
+]
