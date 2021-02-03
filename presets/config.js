@@ -61,13 +61,14 @@ module.exports = function () {
             javascript: {
                 enabled: true,
                 src: build + '/Src/JavaScript/Main.js',
-                ie11: build + '/Src/JavaScript/IE11.js',
                 dest: theme + '/Resources/Public/JavaScript',
                 watch: build + '/Src/JavaScript/**/*.js',
                 includeJquery: true,
                 modules: [
                     build +'/node_modules/frontend-pipeline-main/Src/JavaScript/Plugins/plugin.Breakoints.js',
-                ]
+                ],
+                ie11: build + '/Src/JavaScript/IE11.js',
+                ie11Modules: []
             },
             fonts: {
                 enabled: true,
@@ -119,6 +120,23 @@ module.exports = function () {
                     onReadyScript: build + "/node_modules/frontend-pipeline-main/test/backstop/engine_scripts/puppet/onReady.js",
                 }
             }
+        },
+        clean: {
+            enabled: true,
+            files: [
+                theme + '/Resources/Public/Css',
+                theme + '/Resources/Public/JavaScript',
+                build + '/Test/backstop/backstop.config.js',
+                build + '/Test/backstop/cookies.example.json',
+                build + '/Test/backstop/scenarios.example.json',
+                build + '/Configuration/ImageManipulation/Imports/aspect-ratios.yaml',
+                build + '/Configuration/Misc/colors.yaml',
+                build + '/Configuration/TypoScript/Base/Extensions/FluidStyledContent/Base/Breakpoints.constants.typoscript',
+                build + '/Src/Scss/Abstracts/_aspect-ratios.scss',
+                build + '/Src/Scss/Abstracts/_breakpoints.scss',
+                build + '/Src/Scss/Abstracts/_colors.scss',
+                build + '/Src/Scss/Abstracts/_container.scss',
+            ],
         }
     };
 };

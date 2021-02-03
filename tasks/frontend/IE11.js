@@ -6,9 +6,14 @@ const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')
 module.exports = function(done) {
     done();
 
-    return _gulp.src([
+    let modules = [];
+    modules = modules.concat(_config().frontend.javascript.ie11Modules);
+
+    modules.push(
         _config().frontend.javascript.ie11
-    ])
+    );
+
+    return _gulp.src(modules)
         .pipe(_sourcemaps.init())
         .pipe(_concat('IE11.js'))
         .pipe(_sourcemaps.write('.'))
