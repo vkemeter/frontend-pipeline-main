@@ -3,9 +3,13 @@ const _image = require('gulp-image');
 const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
 
 module.exports = async function(done) {
-    _gulp.src(_config().frontend.images.src)
-        .pipe(_image(_config().frontend.images.config))
-        .pipe(_gulp.dest(_config().frontend.images.dest));
+    _gulp.src(_config().frontend.images.src);
+
+    if (_config().frontend.images.optimize === true) {
+        _gulp.pipe(_image(_config().frontend.images.config));
+    }
+
+    _gulp.pipe(_gulp.dest(_config().frontend.images.dest));
 
     done();
 };
