@@ -79,6 +79,7 @@ module.exports = function () {
                 enabled: true,
                 src: build + '/Src/Images/**/*',
                 dest: theme + '/Resources/Public/Images',
+                optimize: false,
                 config: {
                     pngquant: true,
                     optipng: true,
