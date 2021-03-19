@@ -11,7 +11,7 @@
  *  // your styles here
  * }
  */
-@mixin ie11-only-wrap-shizzle2($className) {
+@mixin ie11-only-wrap-shizzle($className) {
   @each $class in $className {
     _:-ms-fullscreen, :root #{$class} {
       @content;
