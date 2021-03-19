@@ -1,0 +1,12 @@
+foo: "bar"
+nested:
+  config:
+    works: "perfectly"
+type: "yaml"
+array:
+  - "a"
+  - "b"
+  - "c"
+  - "d"
+  - nested:
+      property: "hi"

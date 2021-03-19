@@ -118,8 +118,8 @@ module.exports = function () {
                     "ci_report": build + "/Test/backstop/backstop_data/ci_report"
                 },
                 scripts: {
-                    onBeforeScript: build + "/node_modules/frontend-pipeline-main/test/backstop/engine_scripts/puppet/onBefore.js",
-                    onReadyScript: build + "/node_modules/frontend-pipeline-main/test/backstop/engine_scripts/puppet/onReady.js",
+                    onBeforeScript: build + "/node_modules/frontend-pipeline-main/resources/backstop/engine_scripts/puppet/onBefore.js",
+                    onReadyScript: build + "/node_modules/frontend-pipeline-main/resources/backstop/engine_scripts/puppet/onReady.js",
                 }
             }
         },

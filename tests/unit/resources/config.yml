@@ -1,0 +1,4 @@
+foo: "bar"
+nested:
+  config:
+    works: "perfectly"
