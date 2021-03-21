@@ -5,9 +5,16 @@
  * @include ie11-only-wrap-shizzle('.foo') {
  *  // your styles here
  * }
+ *
+ * or use a list
+ * @include ie11-only-wrap-shizzle(('.foo', '.bar', '.foobar')) {
+ *  // your styles here
+ * }
  */
 @mixin ie11-only-wrap-shizzle($className) {
-  _:-ms-fullscreen, :root #{$className} {
-    @content;
+  @each $class in $className {
+    _:-ms-fullscreen, :root #{$class} {
+      @content;
+    }
   }
 }
