@@ -64,10 +64,10 @@ class ConfigLoader {
     _loadConfig(configFilepath) {
         const fileExtension = path.extname(configFilepath);
         if (fileExtension) {
-            return this._loadConfigFile(configFilepath);
+            return this._loadConfigByFileExtension(configFilepath);
         }
-        const foundConfigFilepath = this._findHighestOrderConfigFile(configFilepath);
-        return this._loadConfigFile(foundConfigFilepath);
+        const foundConfigFilepath = this._findHighestOrderConfigFileInDirectory(configFilepath);
+        return this._loadConfigByFileExtension(foundConfigFilepath);
     }
 
     /**
@@ -75,7 +75,7 @@ class ConfigLoader {
      * @return {Object}
      * @private
      */
-    _loadConfigFile(configFilepath) {
+    _loadConfigByFileExtension(configFilepath) {
         const extension = path.extname(configFilepath);
         if (!this._extensionHierarchy.includes(extension)) {
             throw new Error(`Cannot load ${configFilepath}. Extension ${extension} is not allowed`);
@@ -113,9 +113,9 @@ class ConfigLoader {
      * @return {string}
      * @private
      */
-    _findHighestOrderConfigFile(configFilepath) {
-        const foundConfigFiles = this._findConfigFilesInPath(configFilepath);
-        const highestOrderConfigFile = this._findHighestOrderConfigFileInFiles(foundConfigFiles);
+    _findHighestOrderConfigFileInDirectory(configFilepath) {
+        const foundConfigFiles = this._findAllConfigFilesInDirectory(configFilepath);
+        const highestOrderConfigFile = this._findHighestOrderConfigFileInDirectoryEntries(foundConfigFiles);
         if (!highestOrderConfigFile) {
             throw new Error(`Cannot find any config files with valid extension in ${directoryPath}`);
         }
@@ -130,7 +130,7 @@ class ConfigLoader {
      * @return {string}
      * @private
      */
-    _findHighestOrderConfigFileInFiles(foundConfigFiles) {
+    _findHighestOrderConfigFileInDirectoryEntries(foundConfigFiles) {
         for (let extension of this._extensionHierarchy) {
             const configFile = foundConfigFiles.find(file => file.ext === extension);
             if (configFile) {
@@ -145,7 +145,7 @@ class ConfigLoader {
      * @return ParsedPath[]>
      * @private
      */
-    _findConfigFilesInPath(configFilepath) {
+    _findAllConfigFilesInDirectory(configFilepath) {
         const directoryPath = path.dirname(configFilepath);
         const filename = path.basename(configFilepath)
         const srcPathEntries = fs.readdirSync(directoryPath, {withFileTypes: true});
@@ -153,6 +153,22 @@ class ConfigLoader {
             .filter(entry => entry.isFile())
             .map(entry => path.parse(entry.name))
             .filter(entry => entry.name === filename && this._extensionHierarchy.includes(entry.ext));
+    }
+
+    /**
+     * @param {Object} object
+     * @param {string} path
+     * @param {any} defaultValue
+     * @return {any}
+     * @private
+     */
+    _getObjectPropertyByPath(object, path, defaultValue = undefined) {
+        return path.split('.').reduce((output, pathSegment) => {
+            if (output) {
+                return output[pathSegment];
+            }
+            return defaultValue;
+        }, object);
     }
 
     /**
@@ -164,13 +180,19 @@ class ConfigLoader {
     }
 
     /**
-     * @return {Object}
+     *
+     * @param {string | undefined} path
+     * @param {any} defaultValue
+     * @return {Object|any}
      */
-    load() {
+    get(path, defaultValue = undefined) {
         if (!this._cachedConfig) {
-            return this.forceLoadFromDisk();
+            this.forceLoadFromDisk();
         }
-        return this._cachedConfig;
+        if (!path) {
+            return this._cachedConfig;
+        }
+        return this._getObjectPropertyByPath(this._cachedConfig, path, defaultValue);
     }
 }
 

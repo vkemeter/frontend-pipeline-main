@@ -1,6 +1,6 @@
 const Pipeline = require('../../libs/Pipeline');
 
-describe('load correct config', () => {
+describe('get correct config', () => {
     test('should throw error if config was not found', () => {
         expect(Pipeline.get).toThrowError();
     });
@@ -16,7 +16,7 @@ describe('load correct config', () => {
         expect(Pipeline.get().type).toEqual('yaml');
     });
 
-    test('should not load file if object is set', () => {
+    test('should not get file if object is set', () => {
         const testObj = {foo: 'bar'};
         Pipeline.setConfig(testObj);
         expect(Pipeline.get()).toEqual(testObj);

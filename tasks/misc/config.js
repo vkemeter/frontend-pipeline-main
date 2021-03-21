@@ -1,11 +1,26 @@
 const _read = require('read-data');
 const _writeFile = require('write');
-const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
+//const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
+const Pipeline = require('../../libs/Pipeline');
+const ConfigLoader = require('../../libs/ConfigLoader');
+const VariableGenerator = require('../../libs/VariableGenerator');
 
-module.exports = function(done) {
-    // read the desired yaml file
-    // look for possible options in the yaml file
-    return _read(_config().config.sourceFile, function(err, data) {
+const variableGenerator = new VariableGenerator();
+
+function getVariablesBaseDefinitions() {
+    const variableConfigFile = Pipeline.get('config.sourceFile');
+    if (!variableConfigFile) {
+        return {};
+    }
+    const configLoader = new ConfigLoader(variableConfigFile);
+    return configLoader.get('config');
+}
+
+module.exports = async function (done) {
+    const variableBaseDefinitions = getVariablesBaseDefinitions();
+    variableGenerator.generate(variableBaseDefinitions);
+
+    return _read(_config().config.sourceFile, function (err, data) {
         // log error to console, if file is missing
         // not not correct yaml
         if (err) {
@@ -37,7 +52,7 @@ module.exports = function(done) {
                     _return = [];
 
                 // get the values for the desired export file
-                for(i in values) {
+                for (i in values) {
                     // check if there is a typecast for the value
                     var _value = values[i].value;
                     if (typeof entry['export'][type].typecast !== 'undefined') {
@@ -58,12 +73,12 @@ module.exports = function(done) {
                         if (typeof values[i + 1] !== 'undefined') {
 
                             // check if there is a typecast for the value
-                            var _value = (parseInt(values[i + 1].value) - 1) +'px';
+                            var _value = (parseInt(values[i + 1].value) - 1) + 'px';
                             if (typeof entry['export'][type].typecast !== 'undefined') {
                                 _value = parseInt(_value);
                             }
 
-                            _return.push(writeLn(values[i].key +'-'+ entry['export'][type].additional, _value, type));
+                            _return.push(writeLn(values[i].key + '-' + entry['export'][type].additional, _value, type));
                         }
                     }
                 }
@@ -73,7 +88,7 @@ module.exports = function(done) {
 
                 // finaly write the desired file to the folder given in the
                 // yaml file or log an error to the console if it fails
-                _writeFile(_fileName, content, function(err) {
+                _writeFile(_fileName, content, function (err) {
                     if (err) {
                         console.log(err);
                     }
@@ -83,7 +98,7 @@ module.exports = function(done) {
     }, waitUntilFilesWritten(done));
 
     function waitUntilFilesWritten(done) {
-        setTimeout(function(){
+        setTimeout(function () {
             done();
         }, 100);
     }
@@ -108,15 +123,15 @@ module.exports = function(done) {
         };
 
         // simply add a tab for better readability to each line.
-        for(k in object) {
+        for (k in object) {
             if (type === 'yaml') {
-                object[k] = '  '+ object[k];
+                object[k] = '  ' + object[k];
             } else {
-                object[k] = '\t'+ object[k];
+                object[k] = '\t' + object[k];
             }
         }
 
-        return object.join((typeof eol[type] !== 'undefined' ? eol[type] : '') +'\n');
+        return object.join((typeof eol[type] !== 'undefined' ? eol[type] : '') + '\n');
     }
 
     /**
@@ -144,12 +159,12 @@ module.exports = function(done) {
             if (advanced === true) {
                 var _line = '';
                 _line += '      "' + value.replace(' ', ':') + '":\r\n';
-                _line += '          title: "'+ value.replace(' ', ':') +'"\r\n';
-                _line += '          value: '+ value.replace(' ', ' / ');
+                _line += '          title: "' + value.replace(' ', ':') + '"\r\n';
+                _line += '          value: ' + value.replace(' ', ' / ');
 
                 return _line;
             } else {
-                return '- { key: '+ key +', value: \''+ value +'\' }';
+                return '- { key: ' + key + ', value: \'' + value + '\' }';
             }
         }
 
@@ -178,28 +193,28 @@ module.exports = function(done) {
     function wrap(string, variableName, type, fileName, advanced = false) {
         var wrap = {
             'scss': {
-                'start': '$'+ variableName +': (\n',
+                'start': '$' + variableName + ': (\n',
                 'end': '\n);',
                 'comment': '//',
             },
             'constantsts': {
-                'start': variableName +' {\n',
+                'start': variableName + ' {\n',
                 'end': '\n}',
                 'comment': '//',
             },
             'yaml': {
-                'start': variableName +': \r\n',
+                'start': variableName + ': \r\n',
                 'end': '\r\n',
                 'comment': '#',
                 'advanced': 'imageManipulation:\r\n  cropVariants:\r\n    defaults:\r\n',
             },
         };
 
-        var comment  = '';
-        comment += wrap[type]['comment'] +' ' + fileName + ', created with gulp task and yaml config\n';
-        comment += wrap[type]['comment'] +' created at: ' + new Date().toString() +'\n';
+        var comment = '';
+        comment += wrap[type]['comment'] + ' ' + fileName + ', created with gulp task and yaml config\n';
+        comment += wrap[type]['comment'] + ' created at: ' + new Date().toString() + '\n';
 
-        return comment + (typeof wrap[type] !== undefined ? (advanced === true ? wrap[type]['advanced'] +'      ' : '') + wrap[type]['start'] : '') + string + (typeof wrap[type] !== undefined ? wrap[type]['end'] : '');
+        return comment + (typeof wrap[type] !== undefined ? (advanced === true ? wrap[type]['advanced'] + '      ' : '') + wrap[type]['start'] : '') + string + (typeof wrap[type] !== undefined ? wrap[type]['end'] : '');
     }
 };
 

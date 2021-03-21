@@ -3,3 +3,4 @@ node_modules
 !presets/config.yaml
 !presets/gulpfile.js
 .DS_Store
+.idea

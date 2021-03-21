@@ -53,7 +53,7 @@ describe('find correct files when no file extension is set', () => {
 
     test('use js-config first by default', () => {
         const configLoader = new ConfigLoader(relativeResourcePath);
-        const filename = configLoader._findHighestOrderConfigFile(absoluteResourcePath);
+        const filename = configLoader._findHighestOrderConfigFileInDirectory(absoluteResourcePath);
         const filenameExtension = path.extname(filename);
 
         expect(filenameExtension).toEqual('.js');
@@ -67,7 +67,7 @@ describe('find correct files when no file extension is set', () => {
                 iterationHierarchy.push(ConfigLoader.DEFAULT_EXTENSION_HIERARCHY[targetIndex]);
             }
             const configLoader = new ConfigLoader(relativeResourcePath, {extensionHierarchy: iterationHierarchy});
-            const filename = configLoader._findHighestOrderConfigFile(absoluteResourcePath);
+            const filename = configLoader._findHighestOrderConfigFileInDirectory(absoluteResourcePath);
             const filenameExtension = path.extname(filename);
 
             expect(filenameExtension).toEqual(iterationHierarchy[0]);
@@ -83,18 +83,18 @@ describe('find correct files when no file extension is set', () => {
         });
 
         const configLoader = new ConfigLoader(relativeResourcePath);
-        const filename = configLoader._findHighestOrderConfigFile(absoluteResourcePath);
+        const filename = configLoader._findHighestOrderConfigFileInDirectory(absoluteResourcePath);
         const filenameExtension = path.extname(filename);
 
         expect(filenameExtension).toEqual('.yaml');
     });
 });
 
-describe('load and parse all filetypes correctly', () => {
+describe('get and parse all filetypes correctly', () => {
     ConfigLoader.DEFAULT_EXTENSION_HIERARCHY.forEach(extension => {
         test(`${extension.substr(1)}-configs should be parsed correctly`, () => {
             const configLoader = new ConfigLoader(absoluteResourcePath + extension);
-            const loadedConfig = configLoader.load();
+            const loadedConfig = configLoader.get();
 
             expect(typeof loadedConfig).toEqual('object');
             expect(loadedConfig.foo).toEqual('bar');
@@ -103,7 +103,7 @@ describe('load and parse all filetypes correctly', () => {
 
     test('execute exported function from loaded js-config', () => {
         const configLoader = new ConfigLoader(absoluteResourcePath + 'Fn.js');
-        const loadedConfig = configLoader.load();
+        const loadedConfig = configLoader.get();
 
         expect(typeof loadedConfig).toEqual('object');
         expect(loadedConfig.foo).toEqual('bar');
