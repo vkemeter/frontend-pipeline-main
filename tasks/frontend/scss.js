@@ -3,7 +3,7 @@
 const _gulp = require('gulp');
 const _sass = require('gulp-dart-sass');
 const _prefix = require('gulp-autoprefixer');
-const _minify = require('gulp-cssnano');
+const _minify = require('gulp-css-clean');
 const _rename = require('gulp-rename');
 const _sourcemaps = require('gulp-sourcemaps');
 const _glob = require('gulp-sass-glob');
@@ -20,7 +20,7 @@ module.exports = function(done) {
             }).on('error', _sass.logError))
             .pipe(_prefix(_config().browserPrefix))
             .pipe(_rename({ suffix: '.min' }))
-            .pipe(_minify({ zindex: false }))
+            .pipe(_minify())
             .pipe(_sourcemaps.write('.'))
             .pipe(_gulp.dest(_config().frontend.css.dest));
 };
