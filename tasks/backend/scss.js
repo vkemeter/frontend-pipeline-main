@@ -4,7 +4,6 @@ const _gulp = require('gulp');
 const _sass = require('gulp-dart-sass');
 const _prefix = require('gulp-autoprefixer');
 const _glob = require('gulp-sass-glob');
-const _minify = require('gulp-cssnano');
 const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
 
 _sass.compiler = require('node-sass');
@@ -25,7 +24,6 @@ module.exports = function(done) {
             outputStyle: 'compressed'
         }).on('error', _sass.logError))
         .pipe(_prefix(_config().browserPrefix))
-        .pipe(_minify({ zindex: false }))
         .pipe(_gulp.dest(_config().backend.css.dest));
 };
 
