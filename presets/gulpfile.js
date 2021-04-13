@@ -23,3 +23,9 @@ _gulp.task('default',
         )
     )
 );
+
+_gulp.task('favicon', _gulp.series(
+    'Favicon:CHECK',
+    'Favicon:GENERATE',
+    'Favicon:INJECT',
+));

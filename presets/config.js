@@ -21,11 +21,12 @@ module.exports = function () {
             }
         },
         favIcon: {
-            data: build + '/Resources/Public/Icons/Favicon/faviconData.json',
-            master: build + '/Resources/Public/Icons/Favicon/FaviconMaster.svg',
+            enabled: true,
+            data: build + '/Src/Favicon/faviconData.json',
+            master: build + '/Src/Favicon/FaviconMaster.svg',
             dest: webRoot,
-            destHtml: build + '/Resources/Private/Partials/Page/Favicon/Src/RealFavIcon.html',
-            destDir: build + '/Resources/Private/Partials/Page/Favicon/Dist'
+            srcHtml: build + '/Src/Favicon/Favicon.html',
+            destDir: theme + '/Resources/Private/Partials/Page/'
         },
         config: {
             sourceFile: build + '/config.yaml'
