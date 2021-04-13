@@ -9,10 +9,12 @@
 - sassdash
 - bootstrap 4.5.3
 - family.scss
+- real favicon generator
 
 1. `yarn init`
 2. `yarn add https://github.com/vkemeter/frontend-pipeline-main.git`
-3. edit config files for your need.
+3. copy config files and presets from preset folder
+4. edit config files for your need
 
 see a example package here: https://github.com/vkemeter/frontend-pipeline-package
 
@@ -38,3 +40,12 @@ this task will start the test based on your reference files.
 you can approve your tests with this task. use --filter="Filename" to approve single screenshots. 
 
 see https://github.com/garris/BackstopJS for further informations
+
+### FAVICON GENERATOR
+
+a gulp task for creating modern favicons based on a svg file for all modern devices.
+
+use the Favicon:: Tasks in series to generate them, or use the favicon task to run all tasks in series.
+
+this will generate favicon files and a html partial for usage in your typoscript to inject it
+in your html head.
