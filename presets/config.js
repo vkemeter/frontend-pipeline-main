@@ -22,11 +22,17 @@ module.exports = function () {
         },
         favIcon: {
             enabled: true,
-            data: build + '/Src/Favicon/faviconData.json',
-            master: build + '/Src/Favicon/FaviconMaster.svg',
-            dest: webRoot,
-            srcHtml: build + '/Src/Favicon/Favicon.html',
-            destDir: theme + '/Resources/Private/Partials/Page/'
+            srcHtml: build + '/Src/Favicon/FavIcon.html',
+            icons: [
+                {
+                    name: 'Homepage',
+                    data: build +'/Src/Favicon/Homepage/faviconData.json',
+                    master: build + '/Src/Favicon/Homepage/FaviconMaster.svg',
+                    dest: webRoot +'/favicons/Homepage/',
+                    destDir: theme + '/Resources/Private/Partials/Page/FavIcons/Homepage/',
+                    iconsPath: '/favicons/homepage/'
+                }
+            ],
         },
         config: {
             sourceFile: build + '/config.yaml'
