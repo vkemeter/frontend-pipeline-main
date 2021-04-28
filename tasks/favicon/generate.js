@@ -1,8 +1,7 @@
 const _realFavicon = require('gulp-real-favicon');
 const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
-const _masterPicture = _config().favIcon.master;
-const _FAVICON_DATA_FILE = _config().favIcon.data;
-const _dest = _config().favIcon.dest;
+const _fancyLog = require('fancy-log');
+const _colors = require('ansi-colors');
 
 /**
  * Generate the icons. This task takes a few seconds to complete.
@@ -13,65 +12,72 @@ const _dest = _config().favIcon.dest;
  * @return {*|void}
  */
 module.exports = function (done) {
+    _config().favIcon.icons.forEach(function(icon, key){
+        _fancyLog(_colors.green('Generating '+ icon.name));
 
-    return _realFavicon.generateFavicon({
-        masterPicture: _masterPicture,
-        dest: _dest,
-        iconsPath: '/',
-        design: {
-            ios: {
-                pictureAspect: 'noChange',
-                assets: {
-                    ios6AndPriorIcons: false,
-                    ios7AndLaterIcons: false,
-                    precomposedIcons: false,
-                    declareOnlyDefaultIcon: true
-                }
-            },
-            desktopBrowser: {},
-            windows: {
-                pictureAspect: 'noChange',
-                backgroundColor: '#da532c',
-                onConflict: 'override',
-                assets: {
-                    windows80Ie10Tile: false,
-                    windows10Ie11EdgeTiles: {
-                        small: false,
-                        medium: true,
-                        big: false,
-                        rectangle: false
+        let _masterPicture = icon.master,
+            _dest = icon.dest,
+            _FAVICON_DATA_FILE = icon.data,
+            _iconsPath = icon.iconsPath;
+
+        _realFavicon.generateFavicon({
+            masterPicture: _masterPicture,
+            dest: _dest,
+            iconsPath: _iconsPath,
+            design: {
+                ios: {
+                    pictureAspect: 'noChange',
+                    assets: {
+                        ios6AndPriorIcons: false,
+                        ios7AndLaterIcons: false,
+                        precomposedIcons: false,
+                        declareOnlyDefaultIcon: true
                     }
-                }
-            },
-            androidChrome: {
-                pictureAspect: 'noChange',
-                themeColor: '#ffffff',
-                manifest: {
-                    name: 'Web',
-                    display: 'standalone',
-                    orientation: 'notSet',
-                    onConflict: 'override',
-                    declared: true
                 },
-                assets: {
-                    legacyIcon: false,
-                    lowResolutionIcons: false
+                desktopBrowser: {},
+                windows: {
+                    pictureAspect: 'noChange',
+                    backgroundColor: '#da532c',
+                    onConflict: 'override',
+                    assets: {
+                        windows80Ie10Tile: false,
+                        windows10Ie11EdgeTiles: {
+                            small: false,
+                            medium: true,
+                            big: false,
+                            rectangle: false
+                        }
+                    }
+                },
+                androidChrome: {
+                    pictureAspect: 'noChange',
+                    themeColor: '#ffffff',
+                    manifest: {
+                        name: 'Web',
+                        display: 'standalone',
+                        orientation: 'notSet',
+                        onConflict: 'override',
+                        declared: true
+                    },
+                    assets: {
+                        legacyIcon: false,
+                        lowResolutionIcons: false
+                    }
+                },
+                safariPinnedTab: {
+                    pictureAspect: 'silhouette',
+                    themeColor: '#5bbad5'
                 }
             },
-            safariPinnedTab: {
-                pictureAspect: 'silhouette',
-                themeColor: '#5bbad5'
-            }
-        },
-        settings: {
-            scalingAlgorithm: 'Mitchell',
-            errorOnImageTooSmall: false
-        },
-        markupFile: _FAVICON_DATA_FILE
-    }, function () {
-        done();
-        console.log("DONE CREATING FAVICONS!");
+            settings: {
+                scalingAlgorithm: 'Mitchell',
+                errorOnImageTooSmall: false
+            },
+            markupFile: _FAVICON_DATA_FILE
+        }, function() {});
     });
+
+    return done();
 };
 
 module.exports.alias = 'Favicon:GENERATE';
