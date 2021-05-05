@@ -9,26 +9,26 @@ describe('setup', () => {
     test('relative path should be mapped to absolute path', () => {
         const configLoader = new ConfigLoader(relativeResourcePath);
 
-        expect(configLoader._configFilepath).toEqual(absoluteResourcePath);
+        expect(configLoader.configFilepath).toEqual(absoluteResourcePath);
     });
 
     test('absolute path should be kept', () => {
         const configLoader = new ConfigLoader(absoluteResourcePath);
 
-        expect(configLoader._configFilepath).toEqual(absoluteResourcePath);
+        expect(configLoader.configFilepath).toEqual(absoluteResourcePath);
     });
 
     test('default extension hierarchy should be applied by default', () => {
         const configLoader = new ConfigLoader('');
 
-        expect(configLoader._extensionHierarchy).toEqual(ConfigLoader.DEFAULT_EXTENSION_HIERARCHY);
+        expect(configLoader.extensionHierarchy).toEqual(ConfigLoader.DEFAULT_EXTENSION_HIERARCHY);
     });
 
     test('extension hierarchy can be passed as constructor parameter', () => {
         const newExtensionHierarchy = ['.json', '.yaml', '.js'];
         const configLoader = new ConfigLoader('', {extensionHierarchy: newExtensionHierarchy});
 
-        expect(configLoader._extensionHierarchy).toEqual(newExtensionHierarchy);
+        expect(configLoader.extensionHierarchy).toEqual(newExtensionHierarchy);
     })
 });
 
@@ -53,7 +53,7 @@ describe('find correct files when no file extension is set', () => {
 
     test('use js-config first by default', () => {
         const configLoader = new ConfigLoader(relativeResourcePath);
-        const filename = configLoader._findHighestOrderConfigFileInDirectory(absoluteResourcePath);
+        const filename = configLoader.findHighestOrderConfigFileInDirectory(absoluteResourcePath);
         const filenameExtension = path.extname(filename);
 
         expect(filenameExtension).toEqual('.js');
@@ -67,7 +67,7 @@ describe('find correct files when no file extension is set', () => {
                 iterationHierarchy.push(ConfigLoader.DEFAULT_EXTENSION_HIERARCHY[targetIndex]);
             }
             const configLoader = new ConfigLoader(relativeResourcePath, {extensionHierarchy: iterationHierarchy});
-            const filename = configLoader._findHighestOrderConfigFileInDirectory(absoluteResourcePath);
+            const filename = configLoader.findHighestOrderConfigFileInDirectory(absoluteResourcePath);
             const filenameExtension = path.extname(filename);
 
             expect(filenameExtension).toEqual(iterationHierarchy[0]);
@@ -83,7 +83,7 @@ describe('find correct files when no file extension is set', () => {
         });
 
         const configLoader = new ConfigLoader(relativeResourcePath);
-        const filename = configLoader._findHighestOrderConfigFileInDirectory(absoluteResourcePath);
+        const filename = configLoader.findHighestOrderConfigFileInDirectory(absoluteResourcePath);
         const filenameExtension = path.extname(filename);
 
         expect(filenameExtension).toEqual('.yaml');

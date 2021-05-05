@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "declaration": true,
+        "removeComments": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "ESNext",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "resolveJsonModule": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "Node",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitUseStrict": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "strict": true,
+        "alwaysStrict": false
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "legacy",
+        "bin"
+    ]
+}

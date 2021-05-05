@@ -4,3 +4,4 @@ node_modules
 !presets/gulpfile.js
 .DS_Store
 .idea
+dist
