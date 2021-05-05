@@ -27,7 +27,7 @@ module.exports = function(done) {
     return _gulp.src(modules)
         .pipe(_sourcemaps.init())
         .pipe(_babel({
-            plugins: ['@babel/env', '@babel/transform-runtime']
+            presets: ['@babel/env']
         }))
         .pipe(_concat('Main.js'))
         .pipe(_rename({ suffix: '.min' }))
