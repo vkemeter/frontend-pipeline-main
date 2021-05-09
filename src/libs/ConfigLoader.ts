@@ -6,106 +6,74 @@ import {ContextFileHelper} from './ContextFileHelper';
 const read = require('read-data').data;
 
 export class ConfigLoader<T> {
-    private static readonly DEFAULT_EXTENSION_HIERARCHY = ['.js', '.json', '.yaml', '.yml'];
+    private static readonly EXTENSION_HIERARCHY = ['.js', '.json', '.yaml', '.yml'];
 
-    private extensionHierarchy: string[];
-    private configFilepath: string;
-    private cachedConfig?: T;
-
-    constructor(configFilepath: string, {extensionHierarchy}: { extensionHierarchy?: string[] } = {}) {
-        this.configFilepath = ContextFileHelper.getContextFilepath(configFilepath);
-        this.extensionHierarchy = ConfigLoader.getExtensionHierarchyOrDefault(extensionHierarchy);
-    }
-
-    get<M = T>(path?: string, defaultValue?: M): T | M {
-        if (!this.cachedConfig) {
-            throw new Error('Config has not been loaded yet');
+    loadConfig(configPath: string, callbackArgs?: any[]): T {
+        const absoluteConfigPath = ContextFileHelper.getContextFilepath(configPath);
+        const isPathDirectory = fs.lstatSync(configPath).isDirectory();
+        if(isPathDirectory) {
+            throw new Error(`Given path ${configPath} is a directory`);
         }
-        if (!path) {
-            return this.cachedConfig;
-        }
-        return this.getObjectPropertyByPath<M>(path, defaultValue);
-    }
-
-    loadConfig(): void {
-        const fileExtension = path.extname(this.configFilepath);
+        const fileExtension = path.extname(absoluteConfigPath);
+        const fileBasename = path.basename(absoluteConfigPath, fileExtension);
         if (fileExtension) {
-            this.cachedConfig = this.loadConfigByFileExtension();
-            return;
+            return this.loadConfigByFileExtension(absoluteConfigPath, callbackArgs);
         }
-        const foundConfigFilepath = this.findConfigFileInDirectory();
-        this.cachedConfig = this.loadConfigByFileExtension(foundConfigFilepath);
+        const foundConfigFile = this.findConfigFileInDirectory(absoluteConfigPath, fileBasename);
+        return this.loadConfigByFileExtension(foundConfigFile, callbackArgs);
     }
 
-    private getObjectPropertyByPath<M>(path: string, defaultValue?: M): M {
-        return path.split('.').reduce((output, pathSegment) => {
-            if (output) {
-                return output[pathSegment];
-            }
-            return defaultValue;
-        }, this.cachedConfig as any);
-    }
-
-    private loadConfigByFileExtension(configFilepath = this.configFilepath): T {
+    private loadConfigByFileExtension(configFilepath: string, callbackArgs?: any[]): T {
         const extension = path.extname(configFilepath);
-        if (!this.extensionHierarchy.includes(extension)) {
-            throw new Error(`Cannot load ${this.configFilepath}. Extension ${extension} is not allowed`);
+        if (!ConfigLoader.EXTENSION_HIERARCHY.includes(extension)) {
+            throw new Error(`Cannot load ${configFilepath}. Extension ${extension} is not allowed`);
         }
         if (extension === '.js') {
-            return this.loadJsConfigFile(configFilepath);
+            return this.loadJsConfigFile(configFilepath, callbackArgs);
         }
         return this.loadJsonOrYamlConfigFile(configFilepath);
     }
 
-    private findConfigFileInDirectory(): string {
-        const foundConfigFiles = this.findAllConfigFilesInDirectory();
-        const highestOrderConfigFile = this.findHighestOrderConfigFileInDirectoryEntries(foundConfigFiles);
+    private findConfigFileInDirectory(directoryPath: string, filename: string): string {
+        const foundConfigFiles = this.findAllConfigFilesInDirectory(directoryPath, filename);
+        const highestOrderConfigFile = this.findHighestOrderConfigFileInPaths(foundConfigFiles);
         if (!highestOrderConfigFile) {
-            throw new Error(`Cannot find any config files with valid extension in ${this.configFilepath}`);
+            throw new Error(`Cannot find any config files with valid extension in ${directoryPath}`);
         }
         return path.format({
-            dir: path.dirname(this.configFilepath),
+            dir: path.dirname(directoryPath),
             base: highestOrderConfigFile
         });
     }
 
-    private findHighestOrderConfigFileInDirectoryEntries(foundConfigFiles: ParsedPath[]): string | null {
-        for (let extension of this.extensionHierarchy) {
+    private findHighestOrderConfigFileInPaths(foundConfigFiles: ParsedPath[]): string | undefined {
+        for (let extension of ConfigLoader.EXTENSION_HIERARCHY) {
             const configFile = foundConfigFiles.find(file => file.ext === extension);
             if (configFile) {
                 return configFile.base;
             }
         }
-        return null;
+        return undefined;
     }
 
-    private findAllConfigFilesInDirectory(): ParsedPath[] {
-        const directoryPath = path.dirname(this.configFilepath);
-        const filename = path.basename(this.configFilepath)
+    private findAllConfigFilesInDirectory(directoryPath: string, filename: string): ParsedPath[] {
         const srcPathEntries = fs.readdirSync(directoryPath, {withFileTypes: true});
         return srcPathEntries
             .filter(entry => entry.isFile())
             .map(entry => path.parse(entry.name))
-            .filter(entry => entry.name === filename && this.extensionHierarchy.includes(entry.ext));
+            .filter(entry => entry.name === filename && ConfigLoader.EXTENSION_HIERARCHY.includes(entry.ext));
     }
 
-    private loadJsConfigFile(configFilepath: string): T {
+    private loadJsConfigFile(configFilepath: string, callbackArgs?: any[]): T {
         let configuration = require(configFilepath);
         if (configuration && typeof configuration === 'function') {
-            configuration = configuration();
+            configuration = configuration(callbackArgs);
         }
         return configuration;
     }
 
     private loadJsonOrYamlConfigFile(configFilepath: string): T {
         return read.sync(configFilepath);
-    }
-
-    private static getExtensionHierarchyOrDefault(extensionHierarchy?: string[]): string[] {
-        if (Array.isArray(extensionHierarchy)) {
-            return extensionHierarchy;
-        }
-        return ConfigLoader.DEFAULT_EXTENSION_HIERARCHY;
     }
 }
 

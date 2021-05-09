@@ -1,9 +1,14 @@
-export interface VariableConfiguration {
-    config: Record<string, VariableConfigurationEntry>
+export interface VariableConfig {
+    readonly SCHEMA: 'VariableConfiguration'
+    config: {
+        [key: string]: VariableConfigurationEntry
+    }
 }
 
 export interface VariableConfigurationEntry {
-    export: Record<string, VariableExport>,
+    export: {
+        [key: string]: VariableExport
+    },
     values: VariableValue[]
 }
 
