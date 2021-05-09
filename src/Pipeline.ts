@@ -1,9 +1,9 @@
-import {PipelineService} from './libs/PipelineService';
+import {PipelineService} from './lib/PipelineService';
 
-export * from './libs/PipelineService';
-export * from './libs/ConfigValidator';
-export * from './libs/ConfigLoader';
-export * from './libs/ContextFileHelper';
+export * from './lib/PipelineService';
+export * from './lib/ConfigValidator';
+export * from './lib/ConfigLoader';
+export * from './lib/ContextFileHelper';
 
 const pipeline = new PipelineService();
 export default pipeline;

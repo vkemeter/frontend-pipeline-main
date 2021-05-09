@@ -24,7 +24,7 @@ export class ConfigValidator<C> {
 
     private static getSchemaPathFromName(schemaName: string): string | null {
         if (path.extname(schemaName) !== '.json') {
-            schemaName = path.join(schemaName, '.json');
+            schemaName = schemaName + '.json';
         }
         schemaName = schemaName.toLowerCase().trim();
         const availableSchema = this.AVAILABLE_JSON_SCHEMAS.find(s => s.toLowerCase() === schemaName);
@@ -35,6 +35,6 @@ export class ConfigValidator<C> {
     }
 
     private static getAllAvailableJsonSchemas(): string[] {
-        return fs.readdirSync(this.JSON_SCHEMA_DIR).filter(schema => path.extname(schema) !== '.json');
+        return fs.readdirSync(this.JSON_SCHEMA_DIR).filter(schema => path.extname(schema) === '.json');
     }
 }

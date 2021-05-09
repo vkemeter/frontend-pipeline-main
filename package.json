@@ -42,16 +42,18 @@
     "write": "^2.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.168",
     "@types/node": "^15.0.1",
     "jest": "^26.6.3",
     "mock-fs": "^4.13.0",
+    "ts-jest": "^26.5.6",
     "ts-node": "^9.1.1",
     "typescript-json-schema": "^0.50.0"
   },
   "scripts": {
     "presets": "cp -Rvn presets/* ../../",
-    "test": "jest ./tests/unit/.*.spec.js",
+    "test": "jest ./test/unit/.*.spec.ts",
     "build:schema:legacy": "typescript-json-schema --out ./src/schemas/config.json --strictNullChecks --required ./src/types/*.ts *",
     "build:schema": "ts-node ./build/generateJsonSchemas.ts",
     "build:ts": "tsc",

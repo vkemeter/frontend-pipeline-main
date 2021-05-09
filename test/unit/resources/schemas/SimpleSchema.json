@@ -1,0 +1,13 @@
+{
+    "type": "object",
+    "properties": {
+        "optionalParameter": {
+            "type": "boolean"
+        },
+        "requiredParameter": {
+            "type": "boolean"
+        }
+    },
+    "required": ["requiredParameter"],
+    "$schema": "http://json-schema.org/draft-07/schema#"
+}
