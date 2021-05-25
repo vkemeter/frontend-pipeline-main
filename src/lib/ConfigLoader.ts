@@ -8,18 +8,28 @@ const read = require('read-data').data;
 export class ConfigLoader<T> {
     private static readonly EXTENSION_HIERARCHY = ['.js', '.json', '.yaml', '.yml'];
 
-    loadConfig(configPath: string, callbackArgs?: any[]): T {
-        const absoluteConfigPath = ContextFileHelper.getContextFilepath(configPath);
+    loadConfig(configPath: string, filename?: string,  callbackArgs?: any): T {
+        const absoluteFilepath = ContextFileHelper.getContextFilepath(configPath);
         const isPathDirectory = fs.lstatSync(configPath).isDirectory();
+
+        let fileExtension: string;
+        let fileBasename: string;
+
         if(isPathDirectory) {
-            throw new Error(`Given path ${configPath} is a directory`);
+            if(!filename) {
+                throw new Error(`Given path ${configPath} is a directory and no filename provided`);
+            }
+            fileExtension = path.extname(filename);
+            fileBasename = path.basename(filename, fileExtension);
+        } else {
+            fileExtension = path.extname(absoluteFilepath);
+            fileBasename = path.basename(absoluteFilepath, fileExtension);
         }
-        const fileExtension = path.extname(absoluteConfigPath);
-        const fileBasename = path.basename(absoluteConfigPath, fileExtension);
+
         if (fileExtension) {
-            return this.loadConfigByFileExtension(absoluteConfigPath, callbackArgs);
+            return this.loadConfigByFileExtension(absoluteFilepath, callbackArgs);
         }
-        const foundConfigFile = this.findConfigFileInDirectory(absoluteConfigPath, fileBasename);
+        const foundConfigFile = this.findConfigFileInDirectory(absoluteFilepath, fileBasename);
         return this.loadConfigByFileExtension(foundConfigFile, callbackArgs);
     }
 
@@ -67,7 +77,8 @@ export class ConfigLoader<T> {
     private loadJsConfigFile(configFilepath: string, callbackArgs?: any[]): T {
         let configuration = require(configFilepath);
         if (configuration && typeof configuration === 'function') {
-            configuration = configuration(callbackArgs);
+            callbackArgs = Array.isArray(callbackArgs) ? callbackArgs : [callbackArgs];
+            configuration = configuration(...callbackArgs);
         }
         return configuration;
     }

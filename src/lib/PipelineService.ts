@@ -1,66 +1,48 @@
 import {PipelineConfig} from '../types/config/PipelineConfig';
-import {ConfigValidator} from './ConfigValidator';
 import {PipelineConfigFactory} from './PipelineConfigFactory';
 import {ConfigLoader} from './ConfigLoader';
-import {merge} from 'lodash';
+import {DeepPartial} from '../types/DeepPartial';
 
 export type PipelineConfigOptionCallback = (configFactory: PipelineConfigFactory) => PipelineConfigFactory | PipelineConfig | void;
-export type PipelineConfigOptions = string | PipelineConfig | PipelineConfigOptionCallback;
+export type PipelineConfigOptions = string | DeepPartial<PipelineConfig> | PipelineConfigOptionCallback;
 
 export class PipelineService {
     private static readonly DEFAULT_CONFIG_FILENAME = process.env.PIPELINE_CONFIG_FILENAME || 'pipeline.config.js';
+    private static readonly DEFAULT_VARIABLES_FILENAME = process.env.PIPELINE_VARIABLES_FILENAME || 'variables.config.js';
 
-    private readonly configValidator = new ConfigValidator<PipelineConfig>('PipelineConfig');
-    private readonly configLoader = new ConfigLoader<PipelineConfig>();
+    private readonly configLoader = new ConfigLoader<PipelineConfig | PipelineConfigFactory>();
 
     private config: PipelineConfig | undefined;
-    private configOptions: PipelineConfigOptions = PipelineService.DEFAULT_CONFIG_FILENAME;
+    private userConfig: PipelineConfigOptions = PipelineService.DEFAULT_CONFIG_FILENAME;
 
     setConfig(configOptions: PipelineConfigOptions) {
-        this.configOptions = configOptions;
+        this.userConfig = configOptions;
     }
 
-    run() {
-        this.loadAndValidateConfig();
+    init() {
+        this.loadConfig();
         console.log(this.config);
     }
 
-    private loadAndValidateConfig() {
-        const defaultConfig = PipelineService.getDefaultPipelineConfiguration();
-        const loadedConfig = this.getConfigFromConfigOptions();
-        const isConfigValid = this.configValidator.validate(loadedConfig);
-        if(!isConfigValid) {
-            throw new Error('Invalid config');
-        }
-        this.config = merge({}, defaultConfig, loadedConfig);
-    }
-
-    private getConfigFromConfigOptions(): PipelineConfig {
-        switch (typeof this.configOptions) {
-            case 'string':
-                return this.configLoader.loadConfig(this.configOptions);
-            case 'function':
-                return  PipelineService.getConfigFromCallback(this.configOptions);
-            default:
-                return this.configOptions;
-        }
-    }
-
-    private static getConfigFromCallback(callback: PipelineConfigOptionCallback): PipelineConfig {
+    private loadConfig(): PipelineConfig {
         const configFactory = new PipelineConfigFactory();
-        const callbackReturn = callback(configFactory);
-        if (callbackReturn) {
-            if (callbackReturn instanceof PipelineConfigFactory) {
-                return callbackReturn.build();
-            }
-            return callbackReturn;
+        let loadedConfig: DeepPartial<PipelineConfig> | PipelineConfigFactory | void;
+        switch (typeof this.userConfig) {
+            case 'string':
+                loadedConfig = this.configLoader.loadConfig(this.userConfig, PipelineService.DEFAULT_CONFIG_FILENAME, configFactory);
+                break;
+            case 'function':
+                loadedConfig = (<PipelineConfigOptionCallback>this.userConfig)(configFactory);
+                break;
+            default:
+                loadedConfig = this.userConfig;
+        }
+        if(!loadedConfig) {
+            return configFactory.build();
+        }
+        if(loadedConfig instanceof PipelineConfigFactory) {
+            return loadedConfig.build();
         }
         return configFactory.build();
-    }
-
-    private static getDefaultPipelineConfiguration(): PipelineConfig {
-        return {
-            autoloadGulpTasks: true
-        };
     }
 }
