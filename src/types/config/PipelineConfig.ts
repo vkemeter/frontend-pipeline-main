@@ -3,6 +3,8 @@ import type {Options as MozjpegOptions} from 'imagemin-mozjpeg';
 import type {Options as OptipngOptions} from 'imagemin-optipng';
 import type {Options as SvgoOptions} from 'imagemin-svgo';
 
+export type Environment = 'development' | 'production';
+
 export interface TaskConfig {
     src: string,
     dest: string
@@ -41,7 +43,7 @@ export interface TaskMiscVariableConfig {
 export interface PipelineConfig {
     autoloadGulpTasks?: boolean,
     createGulpDevTasks?: boolean,
-    environment: 'development' | 'production',
+    environment: Environment,
     tasks: {
         'FRONTEND:SCSS': false | TaskFrontendScssConfig,
         'FRONTEND:JS': false | TaskFrontendJsConfig,

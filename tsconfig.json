@@ -20,7 +20,10 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "strict": true,
-        "alwaysStrict": false
+        "alwaysStrict": false,
+        "paths": {
+            "@tasks/*": ["./src/tasks"]
+        }
     },
     "include": [
         "src"
