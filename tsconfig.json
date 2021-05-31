@@ -21,9 +21,9 @@
         "noUnusedParameters": true,
         "strict": true,
         "alwaysStrict": false,
-        "paths": {
-            "@tasks/*": ["./src/tasks"]
-        }
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true
     },
     "include": [
         "src"

@@ -1,7 +1,9 @@
-import {TaskConfig} from './config/PipelineConfig';
+import {PipelineConfig} from './config/PipelineConfig';
 import ReadWriteStream = NodeJS.ReadWriteStream;
 
-export interface TaskDefinition {
-    name: string,
-    taskFn: (config: TaskConfig) => ReadWriteStream
+export type TaskFn<T extends keyof PipelineConfig['tasks']> = (config: Exclude<PipelineConfig['tasks'][T], false>) => ReadWriteStream;
+
+export interface TaskDefinition<T extends keyof PipelineConfig['tasks']> {
+    name: T,
+    taskFn: TaskFn<T>
 }

@@ -4,7 +4,7 @@ class VariableGenerator {
     static DEFINITION_VALUE_KEY = 'values';
     static DEFINITION_EXPORT_KEY = 'export';
 
-    generate(baseDefinitions) {
+    /*generate(baseDefinitions) {
         for (let definitionName in baseDefinitions) {
             if(baseDefinitions.hasOwnProperty(definitionName)) {
                 console.debug(`Generating files for ${definitionName}`);
@@ -32,7 +32,7 @@ class VariableGenerator {
             return;
         }
         return new Exporter(exportConfig);
-    }
+    }*/
 }
 
 module.exports = VariableGenerator;
