@@ -1,8 +1,10 @@
 import {PipelineService} from './lib/PipelineService';
+import {DefaultConfig} from './DefaultConfig';
 
 export * from './lib/PipelineService';
 export * from './lib/ConfigLoader';
 export * from './lib/ContextFileHelper';
 
-const pipeline = new PipelineService();
+const defaultConfig = DefaultConfig.get();
+const pipeline = new PipelineService(defaultConfig);
 export default pipeline;

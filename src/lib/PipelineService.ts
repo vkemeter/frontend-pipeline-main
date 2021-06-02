@@ -1,63 +1,64 @@
-import {Environment, PipelineConfig} from '../types/config/PipelineConfig';
+import {
+    PipelineConfig,
+    PipelineConfigCallback,
+    PipelineConfigReturnValue,
+    PipelineServiceConfigOption
+} from '../types/config/PipelineConfig';
 import {PipelineConfigFactory} from './PipelineConfigFactory';
 import {ConfigLoader} from './ConfigLoader';
-import {DeepPartial} from '../types/DeepPartial';
 import {TaskRegistry} from './TaskRegistry';
 
-export type PipelineConfigOptionCallback = (configFactory: PipelineConfigFactory) => PipelineConfigFactory | PipelineConfig | void;
-export type PipelineConfigOptions = string | DeepPartial<PipelineConfig> | PipelineConfigOptionCallback;
-
-export class PipelineService {
+export class PipelineService<Tasks extends {}> {
     private static readonly DEFAULT_CONFIG_FILENAME = process.env.PIPELINE_CONFIG_FILENAME || 'pipeline.config.js';
-    private static readonly DEFAULT_VARIABLES_FILENAME = process.env.PIPELINE_VARIABLES_FILENAME || 'variables.config.js';
-    private static readonly DEFAULT_ENVIRONMENT = process.env.NODE_ENV === 'production' ? 'production' : 'development' as Environment;
 
-    private readonly configLoader = new ConfigLoader<PipelineConfig | PipelineConfigFactory>();
-    private readonly taskRegistry = new TaskRegistry();
+    private readonly configLoader = new ConfigLoader<PipelineConfigReturnValue<Tasks>>();
+    private readonly taskRegistry = new TaskRegistry<Tasks>();
 
-    private config: PipelineConfig | undefined;
-    private userConfig: PipelineConfigOptions = PipelineService.DEFAULT_CONFIG_FILENAME;
+    private defaultPipelineConfig: PipelineConfig<Tasks>
+    private pipelineConfig?: PipelineConfig<Tasks>;
+    private userConfigOption: PipelineServiceConfigOption<Tasks> = PipelineService.DEFAULT_CONFIG_FILENAME;
 
-    setConfig(configOptions: PipelineConfigOptions) {
-        this.userConfig = configOptions;
+    constructor(defaultConfig: PipelineConfig<Tasks>) {
+        this.defaultPipelineConfig = defaultConfig;
+    }
+
+    setConfig(configOptions: PipelineServiceConfigOption<Tasks>) {
+        this.userConfigOption = configOptions;
     }
 
     init() {
-        this.config = this.loadConfig();
+        this.loadConfig();
         this.loadTasks();
     }
 
-    private loadConfig(): PipelineConfig {
-        const configFactory = new PipelineConfigFactory({
-            variablesFilename: PipelineService.DEFAULT_VARIABLES_FILENAME,
-            environment: PipelineService.DEFAULT_ENVIRONMENT
-        });
-        let loadedConfig: DeepPartial<PipelineConfig> | PipelineConfigFactory | void;
-        switch (typeof this.userConfig) {
-            case 'string':
-                loadedConfig = this.configLoader.loadConfig(this.userConfig, PipelineService.DEFAULT_CONFIG_FILENAME, configFactory);
-                break;
-            case 'function':
-                loadedConfig = (<PipelineConfigOptionCallback>this.userConfig)(configFactory);
-                break;
-            default:
-                loadedConfig = this.userConfig;
-        }
-        if(!loadedConfig) {
-            return configFactory.build();
-        }
+    private loadConfig(): void {
+        const configFactory = new PipelineConfigFactory(this.defaultPipelineConfig);
+        const loadedConfig = this.getConfigFromUserSetting(configFactory);
         if(loadedConfig instanceof PipelineConfigFactory) {
-            return loadedConfig.build();
+            configFactory.mergeFactory(loadedConfig);
+        } else {
+            configFactory.merge(loadedConfig);
         }
-        return configFactory.build();
+        this.pipelineConfig = configFactory.build();
+    }
+
+    private getConfigFromUserSetting(configFactory: PipelineConfigFactory<Tasks>): PipelineConfigReturnValue<Tasks> {
+        switch (typeof this.userConfigOption) {
+            case 'string':
+                return this.configLoader.loadConfig(this.userConfigOption, PipelineService.DEFAULT_CONFIG_FILENAME, configFactory);
+            case 'function':
+                return (<PipelineConfigCallback<Tasks>>this.userConfigOption)(configFactory);
+            default:
+                return this.userConfigOption;
+        }
     }
 
     private loadTasks(): void {
-        Object.entries(this.config!.tasks).forEach(([taskName, config]) => {
+        Object.entries(this.pipelineConfig!.tasks).forEach(([taskName, config]) => {
             if(!config) {
                 return;
             }
-            this.taskRegistry.get(taskName as keyof PipelineConfig['tasks']);
+            this.taskRegistry.get(taskName as keyof PipelineConfig<Tasks>['tasks']);
             // TODO: do something
         })
     }

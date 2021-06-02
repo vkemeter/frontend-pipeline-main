@@ -1,118 +1,67 @@
-import {Environment, PipelineConfig, TaskMiscVariableConfig} from '../types/config/PipelineConfig';
-import {merge, cloneDeep} from 'lodash';
+import {Environment, PipelineConfig} from '../types/config/PipelineConfig';
+import {cloneDeep, merge} from 'lodash';
+import {DeepPartial} from '../types/DeepPartial';
 
-export interface PipelineConfigFactoryConstructorOptions {
-    variablesFilename: string,
-    environment: Environment
-}
+export class PipelineConfigFactory<T extends {}> {
+    private defaultConfig: PipelineConfig<T>;
+    private currentConfig: PipelineConfig<T>;
 
-export class PipelineConfigFactory {
-    private static readonly DEFAULT_SRC_FOLDER = 'Src/';
-    private static readonly DEFAULT_DEST_FOLDER = '../Resources/Public/';
-
-    private defaultConfig = PipelineConfigFactory.getDefaultPipelineConfiguration();
-    private currentConfig: PipelineConfig;
-
-    constructor({variablesFilename, environment}: PipelineConfigFactoryConstructorOptions) {
-        this.currentConfig = merge({}, this.defaultConfig);
-        this.currentConfig.environment = environment;
-        (this.currentConfig.tasks['MISC:CONFIG'] as TaskMiscVariableConfig).configFile = variablesFilename;
+    constructor(defaultConfig: PipelineConfig<T>) {
+        this.defaultConfig = defaultConfig;
+        this.currentConfig = cloneDeep(defaultConfig);
     }
 
-    enableGulpAutoload(): PipelineConfigFactory {
-        this.currentConfig.autoloadGulpTasks = true;
-        return this;
-    }
-
-    disableGulpAutoload(): PipelineConfigFactory {
-        this.currentConfig.autoloadGulpTasks = false;
-        return this;
-    }
-
-    enableGulpDevTasks(): PipelineConfigFactory {
+    enableGulpDevTasks(): this {
         this.currentConfig.createGulpDevTasks = true;
         return this;
     }
 
-    disableGulpDevTasks(): PipelineConfigFactory {
+    disableGulpDevTasks(): this {
         this.currentConfig.createGulpDevTasks = false;
         return this;
     }
 
-    environment(env: 'development' | 'production'): PipelineConfigFactory {
+    environment(env: Environment): this {
         this.currentConfig.environment = env;
         return this;
     }
 
-    devEnvironment(): PipelineConfigFactory {
+    devEnvironment(): this {
         this.currentConfig.environment = 'development';
         return this;
     }
 
-    prodEnvironment(): PipelineConfigFactory {
+    prodEnvironment(): this {
         this.currentConfig.environment = 'production';
         return this;
     }
 
-    disableTask(task: keyof PipelineConfig['tasks']): PipelineConfigFactory {
+    disableTask(task: keyof T): this {
         this.currentConfig.tasks[task] = false;
         return this;
     }
 
-    enableTask<T extends keyof PipelineConfig['tasks']>(task: T): PipelineConfigFactory {
+    enableTask(task: keyof T): this {
         this.currentConfig.tasks[task] = cloneDeep(this.defaultConfig.tasks[task]);
         return this;
     }
 
-    configureTask<T extends keyof PipelineConfig['tasks']>(task: T, settings: Exclude<PipelineConfig['tasks'][T], false>): PipelineConfigFactory {
+    configureTask<K extends keyof T>(task: K, settings: Exclude<T[K], false>): this {
         merge(this.currentConfig.tasks[task], settings);
         return this;
     }
 
-    build(): PipelineConfig {
-        return this.currentConfig;
+    merge(config?: DeepPartial<PipelineConfig<T>>): this {
+        merge(this.currentConfig, config);
+        return this;
     }
 
-    private static getDefaultPipelineConfiguration(): PipelineConfig {
-        return {
-            autoloadGulpTasks: true,
-            createGulpDevTasks: true,
-            environment: 'development',
-            tasks: {
-                'BACKEND:JS': {
-                    src: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'JavaScript/Backend.js',
-                    dest: PipelineConfigFactory.DEFAULT_DEST_FOLDER + 'JavaScript'
-                },
-                'BACKEND:SCSS': {
-                    src: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Scss/Backend/**/*.scss',
-                    dest: PipelineConfigFactory.DEFAULT_DEST_FOLDER + 'Css/Backend'
-                },
-                'FRONTEND:FONTS': {
-                    src: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Fonts/**/*',
-                    dest: PipelineConfigFactory.DEFAULT_DEST_FOLDER + 'Webfonts'
-                },
-                'FRONTEND:IMAGES': {
-                    src: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Images/**/*',
-                    dest: PipelineConfigFactory.DEFAULT_DEST_FOLDER + 'Images',
-                    optimize: true
-                },
-                'FRONTEND:JS': {
-                    src: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Javascript/Main.ts',
-                    dest: PipelineConfigFactory.DEFAULT_DEST_FOLDER + 'Javascript',
-                    generateLegacyModule: true,
-                    generateModernModule: true,
-                    watchGlob: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Javascript/**/*'
-                },
-                'FRONTEND:SCSS': {
-                    src: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Scss/Styles.scss',
-                    dest: PipelineConfigFactory.DEFAULT_DEST_FOLDER + 'Css',
-                    watchGlob: PipelineConfigFactory.DEFAULT_SRC_FOLDER + 'Scss/**/*'
-                },
-                'MISC:CLEAN': {},
-                'MISC:CONFIG': {
-                    configFile: ''
-                }
-            }
-        }
+    mergeFactory(factory: PipelineConfigFactory<T>): this {
+        merge(this.currentConfig, factory.build());
+        return this;
+    }
+
+    build(): PipelineConfig<T> {
+        return this.currentConfig;
     }
 }
