@@ -17,3 +17,5 @@
 
 - AspectRatio Preset with aspect-ratio-property
 - FavIcon Task
+- Critical CSS Task
+- Add meaningful logging

@@ -1,6 +1,21 @@
 import {Environment, PipelineConfig} from './types/config/PipelineConfig';
-import {DefaultTasks} from './types/DefaultTasks';
+import {TaskMiscVariableConfig} from './types/tasks/MiscConfigTask';
+import {TaskConfig} from './types/tasks/BaseTask';
+import {TaskFrontendImageConfig} from './types/tasks/FrontendImageTask';
+import {TaskFrontendJsConfig} from './types/tasks/FrontendJsTask';
+import {TaskFrontendScssConfig} from './types/tasks/FrontendScssTask';
 import path from 'path';
+
+export interface DefaultTasks {
+    'FRONTEND:SCSS': TaskFrontendScssConfig,
+    'FRONTEND:JS': TaskFrontendJsConfig,
+    'FRONTEND:IMAGES': TaskFrontendImageConfig,
+    'FRONTEND:FONTS': TaskConfig,
+    'BACKEND:JS': TaskConfig,
+    'BACKEND:SCSS': TaskConfig,
+    'MISC:CLEAN': {},
+    'MISC:CONFIG': TaskMiscVariableConfig
+}
 
 export class DefaultConfig {
     private static readonly DEFAULT_SRC_FOLDER = process.env.PIPELINE_SRC_FOLDER || 'Src/';
@@ -15,6 +30,13 @@ export class DefaultConfig {
             tasksPath: this.DEFAULT_TASK_PATH,
             tasksFileExtension: this.DEFAULT_TASK_FILE_EXTENSION,
             createGulpDevTasks: true,
+            createDefaultGulpTask: true,
+            gulpDevTasks: {
+                // TODO: cleanup
+                buildTasks: [[['FRONTEND:FONTS', 'FRONTEND:JS', 'FRONTEND:SCSS', 'FRONTEND:IMAGES']], ['MISC:CLEAN', 'MISC:CONFIG']],
+                // TODO: cleanup
+                watchTasks: []
+            },
             environment: this.DEFAULT_ENVIRONMENT,
             tasks: {
                 'BACKEND:JS': {
@@ -22,15 +44,15 @@ export class DefaultConfig {
                     dest: this.DEFAULT_DEST_FOLDER + 'JavaScript'
                 },
                 'BACKEND:SCSS': {
-                    src: this.DEFAULT_SRC_FOLDER + 'Scss/Backend/!**!/!*.scss',
+                    src: this.DEFAULT_SRC_FOLDER + 'Scss/Backend/**/*.scss',
                     dest: this.DEFAULT_DEST_FOLDER + 'Css/Backend'
                 },
                 'FRONTEND:FONTS': {
-                    src: this.DEFAULT_SRC_FOLDER + 'Fonts/!**!/!*',
+                    src: this.DEFAULT_SRC_FOLDER + 'Fonts/**/*',
                     dest: this.DEFAULT_DEST_FOLDER + 'Webfonts'
                 },
                 'FRONTEND:IMAGES': {
-                    src: this.DEFAULT_SRC_FOLDER + 'Images/!**!/!*',
+                    src: this.DEFAULT_SRC_FOLDER + 'Images/**/*',
                     dest: this.DEFAULT_DEST_FOLDER + 'Images',
                     optimize: true
                 },
@@ -39,12 +61,12 @@ export class DefaultConfig {
                     dest: this.DEFAULT_DEST_FOLDER + 'Javascript',
                     generateLegacyModule: true,
                     generateModernModule: true,
-                    watchGlob: this.DEFAULT_SRC_FOLDER + 'Javascript/!**!/!*'
+                    watchGlob: this.DEFAULT_SRC_FOLDER + 'Javascript/**/*'
                 },
                 'FRONTEND:SCSS': {
                     src: this.DEFAULT_SRC_FOLDER + 'Scss/Styles.scss',
                     dest: this.DEFAULT_DEST_FOLDER + 'Css',
-                    watchGlob: this.DEFAULT_SRC_FOLDER + 'Scss/!**!/!*'
+                    watchGlob: this.DEFAULT_SRC_FOLDER + 'Scss/**/*'
                 },
                 'MISC:CLEAN': {},
                 'MISC:CONFIG': {

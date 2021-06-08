@@ -7,7 +7,7 @@
         "target": "ESNext",
         "sourceMap": true,
         "outDir": "./dist",
-        "baseUrl": "./",
+        "baseUrl": "./src",
         "incremental": true,
         "resolveJsonModule": true,
         "forceConsistentCasingInFileNames": true,
@@ -23,7 +23,8 @@
         "alwaysStrict": false,
         "strictNullChecks": true,
         "strictFunctionTypes": true,
-        "strictPropertyInitialization": true
+        "strictPropertyInitialization": true,
+        "esModuleInterop": true
     },
     "include": [
         "src"
