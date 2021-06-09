@@ -4,7 +4,7 @@ import {TaskConfig} from './types/tasks/BaseTask';
 import {TaskFrontendImageConfig} from './types/tasks/FrontendImageTask';
 import {TaskFrontendJsConfig} from './types/tasks/FrontendJsTask';
 import {TaskFrontendScssConfig} from './types/tasks/FrontendScssTask';
-import path from 'path';
+import * as path from 'path';
 
 export interface DefaultTasks {
     'FRONTEND:SCSS': TaskFrontendScssConfig,
@@ -23,7 +23,7 @@ export class DefaultConfig {
     private static readonly DEFAULT_VARIABLES_FILENAME = process.env.PIPELINE_VARIABLES_FILENAME || 'variables.config.js';
     private static readonly DEFAULT_ENVIRONMENT: Environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
     private static readonly DEFAULT_TASK_PATH = process.env.PIPELINE_TASK_PATH || path.join(__dirname, './tasks');
-    private static readonly DEFAULT_TASK_FILE_EXTENSION = process.env.PIPELINE_TASK_PATH || '.ts';
+    private static readonly DEFAULT_TASK_FILE_EXTENSION = process.env.PIPELINE_TASK_PATH || '.js';
 
     public static get(): PipelineConfig<DefaultTasks> {
         return {
@@ -32,10 +32,8 @@ export class DefaultConfig {
             createGulpDevTasks: true,
             createDefaultGulpTask: true,
             gulpDevTasks: {
-                // TODO: cleanup
-                buildTasks: [[['FRONTEND:FONTS', 'FRONTEND:JS', 'FRONTEND:SCSS', 'FRONTEND:IMAGES']], ['MISC:CLEAN', 'MISC:CONFIG']],
-                // TODO: cleanup
-                watchTasks: []
+                buildTasks: [['FRONTEND:FONTS', 'FRONTEND:JS', 'FRONTEND:SCSS', 'FRONTEND:IMAGES', 'BACKEND:JS', 'BACKEND:SCSS'], ['MISC:CLEAN', 'MISC:CONFIG']],
+                buildSequence: 'series'
             },
             environment: this.DEFAULT_ENVIRONMENT,
             tasks: {
@@ -72,7 +70,17 @@ export class DefaultConfig {
                 'MISC:CONFIG': {
                     configFile: this.DEFAULT_VARIABLES_FILENAME
                 }
-            }
+            },
+            watcher: [
+                {
+                    glob: this.DEFAULT_SRC_FOLDER + 'Javascript/**/*.ts',
+                    tasks: ['FRONTEND:JS']
+                },
+                {
+                    glob: this.DEFAULT_SRC_FOLDER + 'Scss/**/*',
+                    tasks: ['FRONTEND:SCSS', 'BACKEND:SCSS']
+                }
+            ]
         }
     }
 }

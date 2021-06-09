@@ -11,11 +11,16 @@
 | `PIPELINE_DEST_FOLDER` | `../Resources/Public/` | Base directory for dest-files (relative to execution path) |
 | `NODE_EMV` | `development` | Defines wether to create builds for development or production |
 | `PIPELINE_TASK_PATH` | `./tasks/` | Path to the directory where the tasks are located (absolute path) |
-| `PIPELINE_TASK_FILE_EXTENSION` | `.ts` | File extension of task files |
+| `PIPELINE_TASK_FILE_EXTENSION` | `.js` | File extension of task files |
 
 ## TODOs
 
 - AspectRatio Preset with aspect-ratio-property
 - FavIcon Task
 - Critical CSS Task
+- Purge-Task (remove unused css)
 - Add meaningful logging
+- Add linter
+- Write meaningful docs
+- Dont create sourcemaps in production-mode
+- Add scss-preset to autogenerate font-faces

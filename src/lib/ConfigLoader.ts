@@ -8,6 +8,9 @@ const read = require('read-data').data;
 export class ConfigLoader<T> {
     private static readonly EXTENSION_HIERARCHY = ['.js', '.json', '.yaml', '.yml'];
 
+    constructor() {
+    }
+
     loadConfig(configPath: string, filename?: string,  callbackArgs?: any): T {
         const absoluteFilepath = ContextFileHelper.getContextFilepath(configPath);
         const isPathDirectory = fs.lstatSync(configPath).isDirectory();
@@ -87,5 +90,3 @@ export class ConfigLoader<T> {
         return read.sync(configFilepath);
     }
 }
-
-module.exports = ConfigLoader;

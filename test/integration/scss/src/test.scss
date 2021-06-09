@@ -1,0 +1,9 @@
+.foo {
+    background: red;
+
+    &::before {
+        display: flex;
+        position: absolute;
+        backdrop-filter: blur(4px);
+    }
+}

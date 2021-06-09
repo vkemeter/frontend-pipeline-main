@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {keys} from 'ts-transformer-keys';
+// import {keys} from 'ts-transformer-keys';
 import {ContextFileHelper} from './ContextFileHelper';
 import {TaskFunctionDefinition} from '../types/Tasks';
 
@@ -15,7 +15,7 @@ export interface TaskRegistryConstructorOptions {
 
 export class TaskRegistry<Tasks extends {}> {
     private static readonly DEFAULT_TASK_PATH = process.env.PIPELINE_TASK_PATH || path.join(__dirname, '../tasks');
-    private static readonly DEFAULT_TASK_FILE_EXTENSION = '.ts';
+    private static readonly DEFAULT_TASK_FILE_EXTENSION = '.js';
 
     private readonly taskPaths: string[];
     private readonly taskFileExtensions: string[];
@@ -48,15 +48,19 @@ export class TaskRegistry<Tasks extends {}> {
                 return;
             }
             const filePath = path.join(absoluteTaskPath, fileName);
-            const taskDefinition = require(filePath);
-            if(!this.isTaskDefinition(taskDefinition)) {
+            const taskDefinition = require(filePath) as TaskFunctionDefinition<Tasks, any>;
+            /*if(!this.isTaskDefinition(taskDefinition)) {
                 throw new Error(`Unexpected content in file ${fileName}. Expected TaskDefinition but got: ${taskDefinition}`);
-            }
-            this.taskHolder[taskDefinition.name] = taskDefinition;
+            }*/
+            this.taskHolder[this.convertFilenameToTaskname(fileName)] = taskDefinition;
         });
     }
 
-    private isTaskDefinition<Key extends keyof Tasks>(task: any | Key): task is TaskFunctionDefinition<Tasks, Key> {
+    private convertFilenameToTaskname(filename: string): keyof Tasks {
+        return path.basename(filename, path.extname(filename)).split(/(?=[A-Z])/).map(part => part.toUpperCase()).join(':') as keyof Tasks;
+    }
+
+    /*private isTaskDefinition<Key extends keyof Tasks>(task: any | Key): task is TaskFunctionDefinition<Tasks, Key> {
         const isTypeValid = typeof task === 'object'
             && typeof task.name === 'string'
             && typeof task === 'function';
@@ -65,5 +69,5 @@ export class TaskRegistry<Tasks extends {}> {
         }
         const allowedNames = keys<Tasks>();
         return allowedNames.includes(task.name);
-    }
+    }*/
 }

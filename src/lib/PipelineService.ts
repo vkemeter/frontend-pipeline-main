@@ -8,8 +8,8 @@ import {
 import {PipelineConfigFactory} from './PipelineConfigFactory';
 import {ConfigLoader} from './ConfigLoader';
 import {TaskRegistry} from './TaskRegistry';
-import gulp from 'gulp';
-import {TaskFunction, Task} from 'undertaker';
+import * as gulp from 'gulp';
+import {Task, TaskFunction} from 'undertaker';
 
 export class PipelineService<Tasks extends {}> {
     private static readonly DEFAULT_CONFIG_FILENAME = process.env.PIPELINE_CONFIG_FILENAME || 'pipeline.config.js';
@@ -26,16 +26,25 @@ export class PipelineService<Tasks extends {}> {
         this.defaultPipelineConfig = defaultConfig;
     }
 
-    setConfig(configOptions: PipelineServiceConfigOption<Tasks>) {
+    get buildTaskName(): string {
+        return this.pipelineConfig?.gulpDevTasks.buildTaskName || PipelineService.DEFAULT_BUILD_TASKNAME;
+    }
+
+    get watchTaskName(): string {
+        return this.pipelineConfig?.gulpDevTasks.watchTaskName || PipelineService.DEFAULT_WATCH_TASKNAME;
+    }
+
+    setConfig(configOptions: PipelineServiceConfigOption<Tasks>): void {
         this.userConfigOption = configOptions;
     }
 
     init() {
         this.loadConfig();
         this.loadTasks();
-        if(this.pipelineConfig?.createGulpDevTasks) {
+        if (this.pipelineConfig?.createGulpDevTasks) {
             this.createDevTasks();
-            if(this.pipelineConfig?.createDefaultGulpTask) {
+            this.createWatchTask();
+            if (this.pipelineConfig?.createDefaultGulpTask) {
                 this.createDefaultTask();
             }
         }
@@ -44,7 +53,7 @@ export class PipelineService<Tasks extends {}> {
     private loadConfig(): void {
         const configFactory = new PipelineConfigFactory(this.defaultPipelineConfig);
         const loadedConfig = this.getConfigFromUserSetting(configFactory);
-        if(loadedConfig instanceof PipelineConfigFactory) {
+        if (loadedConfig instanceof PipelineConfigFactory) {
             configFactory.mergeFactory(loadedConfig);
         } else {
             configFactory.merge(loadedConfig);
@@ -68,49 +77,65 @@ export class PipelineService<Tasks extends {}> {
             taskPath: this.pipelineConfig?.tasksPath,
             taskFileExtension: this.pipelineConfig?.tasksFileExtension
         });
-        if(this.pipelineConfig?.tasks) {
-            for (const key in this.pipelineConfig.tasks) {
-                if (this.pipelineConfig.tasks.hasOwnProperty(key)) {
-                    const config = this.pipelineConfig.tasks[key];
-                    if (!config) {
-                        return;
-                    }
-                    const taskGenerator = taskRegistry.get(key);
-                    if (!taskGenerator) {
-                        console.warn(`Configuration set for task ${key} but no task definition was found`);
-                        return;
-                    }
-                    const taskFunction = taskGenerator(config as Tasks[typeof key]);
-                    gulp.task(key, taskFunction);
+        if (this.pipelineConfig?.tasks) {
+            Object.keys(this.pipelineConfig.tasks).forEach((key) => {
+                const config = this.pipelineConfig!.tasks[<keyof Tasks>key];
+                if (!config) {
+                    return;
                 }
-            }
+                const taskGenerator = taskRegistry.get(<keyof Tasks>key);
+                if (!taskGenerator) {
+                    console.warn(`Configuration set for task ${key} but no task definition was found`);
+                    return;
+                }
+                const buildFunction = taskGenerator(config as any);
+                gulp.task(key, buildFunction);
+            });
         }
+    }
+
+    private createWatchTask(): void {
+        gulp.task(this.watchTaskName, () => {
+            if (this.pipelineConfig?.watcher) {
+                this.pipelineConfig!.watcher.forEach(watchConfig => {
+                    const watchTasks = Array.isArray(watchConfig.tasks) ? watchConfig.tasks as string[] : [watchConfig.tasks] as string[];
+                    gulp.watch(watchConfig.glob, this.pipelineConfig!.gulpDevTasks.watchOptions, watchConfig.sequence === 'series' ? gulp.series(...watchTasks) : gulp.parallel(...watchTasks));
+                });
+            }
+        });
     }
 
     private createDevTasks(): void {
         const buildTaskChain = this.getGulpTaskChainFromDefinition(this.pipelineConfig!.gulpDevTasks.buildTasks);
-        const watchTaskChain = this.getGulpTaskChainFromDefinition(this.pipelineConfig!.gulpDevTasks.watchTasks);
-        gulp.task(this.pipelineConfig!.gulpDevTasks.buildTaskName || PipelineService.DEFAULT_BUILD_TASKNAME, buildTaskChain);
-        gulp.task(this.pipelineConfig!.gulpDevTasks.watchTaskName || PipelineService.DEFAULT_WATCH_TASKNAME, watchTaskChain);
+        if(buildTaskChain) {
+            gulp.task(this.buildTaskName, buildTaskChain);
+        }
     }
 
-    private getGulpTaskChainFromDefinition(definition: Array<DevTaskDefinition<Tasks>>, series: boolean = false): TaskFunction {
-        if(!Array.isArray(definition)) {
+    private getGulpTaskChainFromDefinition(definition: Array<DevTaskDefinition<Tasks>>, series: boolean = false): TaskFunction | undefined {
+        if (!Array.isArray(definition)) {
             throw new Error(`Expected array to create task chain. Got ${definition}`);
         }
-        const taskChain = definition.map<Task>(task => {
-            if(Array.isArray(task)) {
+        const taskChain = definition.map(task => {
+            if (Array.isArray(task)) {
                 return this.getGulpTaskChainFromDefinition(task, !series);
             }
-            return task as string;
-        });
-        if(series) {
-            return gulp.series(...taskChain);
+            if(this.pipelineConfig?.tasks[task]) {
+                return task as string;
+            }
+            return undefined;
+        }).filter(task => !!task) as Task[];
+
+        if(taskChain.length) {
+            if (series) {
+                return gulp.series(...taskChain);
+            }
+            return gulp.parallel(...taskChain);
         }
-        return gulp.parallel(...taskChain);
+        return undefined;
     }
 
     private createDefaultTask(): void {
-        gulp.task('default', gulp.series(this.pipelineConfig!.gulpDevTasks.buildTaskName));
+        gulp.task('default', gulp.series(this.buildTaskName));
     }
 }
