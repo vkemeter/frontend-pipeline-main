@@ -9,6 +9,7 @@ import gulpAutoprefixer from 'gulp-autoprefixer';
 
 const taskGenerator: TaskFunctionGenerator<TaskFrontendScssConfig> = (config) => {
     return () => {
+        console.log(config.src)
         return gulp.src(config.src)
             .pipe(gulpSourcemaps.init())
             .pipe(gulpSassGlob())

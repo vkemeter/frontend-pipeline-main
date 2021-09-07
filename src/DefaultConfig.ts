@@ -51,8 +51,7 @@ export class DefaultConfig {
                 },
                 'FRONTEND:IMAGES': {
                     src: this.DEFAULT_SRC_FOLDER + 'Images/**/*',
-                    dest: this.DEFAULT_DEST_FOLDER + 'Images',
-                    optimize: true
+                    dest: this.DEFAULT_DEST_FOLDER + 'Images'
                 },
                 'FRONTEND:JS': {
                     src: this.DEFAULT_SRC_FOLDER + 'Javascript/Main.ts',

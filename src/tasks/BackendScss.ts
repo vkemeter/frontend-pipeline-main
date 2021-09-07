@@ -1,11 +1,6 @@
-import gulp from 'gulp';
-import {TaskFunctionGenerator} from '../types/Tasks';
-import gulpDartSass from 'gulp-dart-sass';
-import gulpSassGlob from 'gulp-sass-glob';
-import gulpAutoprefixer from 'gulp-autoprefixer';
-import {TaskConfig} from '../types/tasks/BaseTask';
+import taskGenerator from './FrontendScss'
 
-const taskGenerator: TaskFunctionGenerator<TaskConfig> = (config) => {
+/*const taskGenerator: TaskFunctionGenerator<TaskConfig> = (config) => {
     return () => {
         return gulp.src(config.src)
             .pipe(gulpSassGlob())
@@ -18,6 +13,6 @@ const taskGenerator: TaskFunctionGenerator<TaskConfig> = (config) => {
             .pipe(gulpAutoprefixer())
             .pipe(gulp.dest(config.dest));
     }
-}
+}*/
 
 export = taskGenerator;
