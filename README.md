@@ -24,3 +24,4 @@
 - Write meaningful docs
 - Dont create sourcemaps in production-mode
 - Add scss-preset to autogenerate font-faces
+- Use `del` task only in dev-environment

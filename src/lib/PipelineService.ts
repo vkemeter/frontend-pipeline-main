@@ -90,7 +90,7 @@ export class PipelineService<Tasks extends {}> {
                     console.warn(`Configuration set for task ${key} but no task definition was found`);
                     return;
                 }
-                const buildFunction = taskGenerator(config as any);
+                const buildFunction = taskGenerator(config as any, this.pipelineConfig!);
                 gulp.task(key, buildFunction);
             });
         }
