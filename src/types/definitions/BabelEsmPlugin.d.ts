@@ -1,11 +1,17 @@
 declare module 'babel-esm-plugin' {
-    import {WebpackPluginInstance} from 'webpack';
+    import {WebpackPluginInstance} from 'webpack'
 
     interface BabelEsmPluginOptions {
-
+        filename: string,
+        chunkFilename: string,
+        excludedPlugins: string[],
+        additionalPlugins: string[],
+        beforeStartExecution: (plugins: any[], babelConfig: any) => void
     }
-    class BabelEsmPlugin extends WebpackPluginInstance {
-        constructor(options?: BabelEsmPluginOptions) {super()}
+
+    class BabelEsmPlugin implements WebpackPluginInstance {
+        constructor(options?: Partial<BabelEsmPluginOptions>)
+        apply: (compiler: any) => void
     }
 
     export default BabelEsmPlugin

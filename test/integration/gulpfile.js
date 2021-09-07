@@ -1,5 +1,5 @@
 const gulp = require('gulp');
-const pipeline = require('../../../dist/Pipeline');
+const pipeline = require('../../dist/Pipeline');
 
 pipeline.default.setConfig({
     tasks: {
@@ -8,8 +8,12 @@ pipeline.default.setConfig({
             return output;
         }, {}),
         'FRONTEND:SCSS': {
-            src: './src/test.scss',
-            dest: './dist'
+            src: './src/scss/test.scss',
+            dest: './dist/css'
+        },
+        'FRONTEND:JS': {
+            src: './src/ts/main.ts',
+            dest: './dist/js'
         }
     }
 })

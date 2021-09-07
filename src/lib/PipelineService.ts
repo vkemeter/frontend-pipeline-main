@@ -10,6 +10,7 @@ import {ConfigLoader} from './ConfigLoader';
 import {TaskRegistry} from './TaskRegistry';
 import * as gulp from 'gulp';
 import {Task, TaskFunction} from 'undertaker';
+import {TaskConfig} from '../types/tasks/BaseTask'
 
 export class PipelineService<Tasks extends {}> {
     private static readonly DEFAULT_CONFIG_FILENAME = process.env.PIPELINE_CONFIG_FILENAME || 'pipeline.config.js';
@@ -73,16 +74,17 @@ export class PipelineService<Tasks extends {}> {
     }
 
     private loadTasks(): void {
-        const taskRegistry = new TaskRegistry<Tasks>({
-            taskPath: this.pipelineConfig?.tasksPath,
-            taskFileExtension: this.pipelineConfig?.tasksFileExtension
-        });
         if (this.pipelineConfig?.tasks) {
-            Object.keys(this.pipelineConfig.tasks).forEach((key) => {
+            const taskRegistry = new TaskRegistry<Tasks>({
+                taskPath: this.pipelineConfig?.tasksPath,
+                taskFileExtension: this.pipelineConfig?.tasksFileExtension,
+            });
+            const enabledTasks = Object.keys(this.pipelineConfig.tasks).filter(taskName => {
+                const config = this.pipelineConfig!.tasks[<keyof Tasks>taskName] as TaskConfig | false;
+                return !(!config || config.enabled === false);
+            });
+            enabledTasks.forEach((key) => {
                 const config = this.pipelineConfig!.tasks[<keyof Tasks>key];
-                if (!config) {
-                    return;
-                }
                 const taskGenerator = taskRegistry.get(<keyof Tasks>key);
                 if (!taskGenerator) {
                     console.warn(`Configuration set for task ${key} but no task definition was found`);

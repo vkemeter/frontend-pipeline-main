@@ -21,7 +21,10 @@ export class TaskRegistry<Tasks extends {}> {
     private readonly taskFileExtensions: string[];
     private taskHolder: TasksHolder<Tasks> = {};
 
-    constructor({taskPath = TaskRegistry.DEFAULT_TASK_PATH, taskFileExtension = TaskRegistry.DEFAULT_TASK_FILE_EXTENSION}: Partial<TaskRegistryConstructorOptions> = {}) {
+    constructor({
+        taskPath = TaskRegistry.DEFAULT_TASK_PATH,
+        taskFileExtension = TaskRegistry.DEFAULT_TASK_FILE_EXTENSION
+    }: Partial<TaskRegistryConstructorOptions> = {}) {
         this.taskPaths = Array.isArray(taskPath) ? taskPath : [taskPath];
         this.taskFileExtensions = Array.isArray(taskFileExtension) ? taskFileExtension : [taskFileExtension];
 

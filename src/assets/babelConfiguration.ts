@@ -1,14 +1,18 @@
 export default {
-    'presets': [
+    presets: [
+        '@babel/preset-typescript',
         ['@babel/preset-env', {
-            'targets': {
-                'browsers': ['last 2 versions', 'safari >= 7']
+            targets: {
+                browsers: ['last 2 versions', 'safari >= 10.1']
             }
-        }],
-        '@babel/preset-typescript'
+        }]
     ],
     'plugins': [
-        '@babel/proposal-class-properties',
-        '@babel/proposal-object-rest-spread'
+        '@babel/plugin-syntax-dynamic-import',
+        '@babel/plugin-transform-destructuring',
+        '@babel/plugin-proposal-object-rest-spread',
+        '@babel/plugin-proposal-class-properties',
+        '@babel/plugin-proposal-export-default-from',
+        '@babel/plugin-proposal-export-namespace-from'
     ]
 }
