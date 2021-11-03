@@ -1,0 +1,57 @@
+config:
+    breakpoints:
+        export:
+            scss:
+                name: grid-breakpoints
+                file: Src/Scss/Abstracts/_breakpoints.scss
+            constantsts:
+                name: site.breakpoints
+                file: ../Configuration/TypoScript/Base/Extensions/FluidStyledContent/Base/Breakpoints.constants.typoscript
+                additional: max
+                typecast: parseInt
+        values:
+            - { key: xs, value: 0 }
+            - { key: sm, value: 576px }
+            - { key: md, value: 768px }
+            - { key: lg, value: 992px }
+            - { key: xl, value: 1200px }
+            - { key: xxl, value: 1440px }
+            - { key: ultrawide, value: 1920px }
+
+    container:
+        export:
+            scss:
+                name: container-max-widths
+                file: Src/Scss/Abstracts/_container.scss
+        values:
+            - { key: sm, value: 540px }
+            - { key: md, value: 720px }
+            - { key: lg, value: 960px }
+            - { key: xl, value: 1140px }
+            - { key: xxl, value: 1440px }
+
+    colors:
+        export:
+            scss:
+                name: colors
+                file: Src/Scss/Abstracts/_colors.scss
+        values:
+            - { key: primary, value: 'primary' }
+
+    aspect-ratios:
+        export:
+            scss:
+                name: aspect-ratios
+                file: Src/Scss/Abstracts/_aspect-ratios.scss
+        values:
+            - { key: 16by10, value: '16 10' }
+            - { key: 8by10, value: '8 10' }
+            - { key: 8by5, value: '8 5' }
+            - { key: 8by3, value: '8 3' }
+            - { key: 16by9, value: '16 9' }
+            - { key: 16by8, value: '16 8' }
+            - { key: 4by3, value: '4 3' }
+            - { key: 3by4, value: '3 4' }
+            - { key: 3by2, value: '3 2' }
+            - { key: 2by3, value: '2 3' }
+            - { key: 1by1, value: '1 1' }

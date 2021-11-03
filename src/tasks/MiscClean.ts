@@ -1,7 +1,7 @@
 import {TaskConfig} from '../types/tasks/BaseTask'
 import {TaskFunctionGenerator} from '../types/Tasks'
 import {TaskCallback} from 'undertaker'
-import del from 'del'
+import * as del from 'del'
 
 const taskGenerator: TaskFunctionGenerator<TaskConfig, {}> = (_, pipelineConfig) => {
     return async (done: TaskCallback) => {

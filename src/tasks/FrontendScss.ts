@@ -1,11 +1,11 @@
 import {TaskFrontendScssConfig} from '../types/tasks/FrontendScssTask';
-import gulp from 'gulp';
+import * as gulp from 'gulp';
 import {TaskFunctionGenerator} from '../types/Tasks';
-import gulpDartSass from 'gulp-dart-sass';
+import * as gulpDartSass from 'gulp-dart-sass';
 import gulpSassGlob from 'gulp-sass-glob';
-import gulpRename from 'gulp-rename';
-import gulpSourcemaps from 'gulp-sourcemaps';
-import gulpAutoprefixer from 'gulp-autoprefixer';
+import * as gulpRename from 'gulp-rename';
+import * as gulpSourcemaps from 'gulp-sourcemaps';
+import * as gulpAutoprefixer from 'gulp-autoprefixer';
 
 const taskGenerator: TaskFunctionGenerator<TaskFrontendScssConfig> = (config) => {
     return () => {

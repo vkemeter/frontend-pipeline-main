@@ -1,4 +1,3 @@
-console.log('yolo')
 let x: string | number
 if (Math.random() > 0.5) {
     x = 'hallo'
@@ -14,4 +13,4 @@ const getData = async () => {
 
 getData().then(() => {
     console.log("hallo");
-}).catch(err => console.error)
+}).catch(err => console.error(err))

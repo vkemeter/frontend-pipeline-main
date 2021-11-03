@@ -1,46 +1,54 @@
-import {AbstractVariableExporter} from './AbstractVariableExporter';
-import * as fs from 'fs';
-import * as path from 'path';
+import {AbstractVariableExporter} from './AbstractVariableExporter'
+import * as fs from 'fs'
+import * as path from 'path'
+import {VariableExportConfig} from '../../types/config/VariableConfig'
+
+type ExporterImplementation =
+    (new (exportConfig: VariableExportConfig) => AbstractVariableExporter)
+    & typeof AbstractVariableExporter;
 
 export class VariableExporterRegistry {
-    private static readonly DEFAULT_EXPORTER_PATH = path.join(__dirname, 'impl');
+    private static readonly DEFAULT_EXPORTER_PATH = path.join(__dirname, 'impl')
 
-    defaultExporterLoaded = false;
-    registeredExporter: Record<string, typeof AbstractVariableExporter> = {};
+    defaultExporterLoaded = false
+    registeredExporter: Record<string, ExporterImplementation> = {}
 
-    register(Exporter: typeof AbstractVariableExporter) {
-        if (!AbstractVariableExporter.isPrototypeOf(Exporter)) {
-            console.error('Registered Exporter must extend AbstractVariableExporter');
-            return;
+    register (Exporter: ExporterImplementation | any) {
+        if (!(Exporter.prototype instanceof AbstractVariableExporter)) {
+            console.error(`Registered Exporter must extend ${AbstractVariableExporter.name}`)
+            return
         }
-        if (Exporter.TARGET_EXPORT_KEY === AbstractVariableExporter.TARGET_EXPORT_KEY) {
-            console.warn('Registered Exporter does not contain a valid TARGET_EXPORT_KEY');
-            return;
+        if (!Exporter.TARGET_EXPORT_KEY) {
+            console.warn('Registered Exporter does not contain a valid TARGET_EXPORT_KEY')
+            return
         }
         if (this.registeredExporter.hasOwnProperty(Exporter.TARGET_EXPORT_KEY)) {
-            console.warn(`Target Key ${Exporter.TARGET_EXPORT_KEY} is already registered`);
-            return;
+            console.warn(`Target Key ${Exporter.TARGET_EXPORT_KEY} is already registered`)
+            return
         }
-        this.registeredExporter[Exporter.TARGET_EXPORT_KEY] = Exporter;
+        this.registeredExporter[Exporter.TARGET_EXPORT_KEY] = Exporter
     }
 
-    get(key: string) {
-        if (!this.registeredExporter.hasOwnProperty(key)) {
-            console.warn(`Used key ${key} has no registered Exporter`);
+    get (key: string, variableExport: VariableExportConfig): AbstractVariableExporter | void {
+        const Exporter = this.registeredExporter[key]
+        if (Exporter) {
+            return new Exporter(variableExport)
         }
-        return this.registeredExporter[key];
     }
 
-    loadDefaultExporter() {
+    loadDefaultExporter () {
         if (this.defaultExporterLoaded) {
-            return;
+            return
         }
-        const defaultExporterPathEntries = fs.readdirSync(VariableExporterRegistry.DEFAULT_EXPORTER_PATH);
-        for (const exporterFilename of defaultExporterPathEntries) {
-            const exporterFilepath = path.join(VariableExporterRegistry.DEFAULT_EXPORTER_PATH, exporterFilename);
-            const Exporter = require(exporterFilepath);
-            this.register(Exporter);
-        }
-        this.defaultExporterLoaded = true;
+
+        fs.readdirSync(VariableExporterRegistry.DEFAULT_EXPORTER_PATH)
+            .filter(entry => path.extname(entry).toLowerCase() === '.js')
+            .forEach(entry => {
+                const exporterFilepath = path.join(VariableExporterRegistry.DEFAULT_EXPORTER_PATH, entry)
+                const Exporter = require(exporterFilepath)
+                this.register(Exporter)
+            })
+
+        this.defaultExporterLoaded = true
     }
 }

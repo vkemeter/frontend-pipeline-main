@@ -1,9 +1,9 @@
-import * as path from 'path';
-import {ParsedPath} from 'path';
-import * as fs from 'fs';
-import {ContextFileHelper} from './ContextFileHelper';
+import * as path from 'path'
+import {ParsedPath} from 'path'
+import * as fs from 'fs'
+import {ContextFileHelper} from './ContextFileHelper'
 
-const read = require('read-data').data;
+const read = require('read-data');
 
 export class ConfigLoader<T> {
     private static readonly EXTENSION_HIERARCHY = ['.js', '.json', '.yaml', '.yml'];
@@ -29,10 +29,11 @@ export class ConfigLoader<T> {
             fileBasename = path.basename(absoluteFilepath, fileExtension);
         }
 
-        if (fileExtension) {
+        if (ConfigLoader.EXTENSION_HIERARCHY.includes(fileExtension)) {
             return this.loadConfigByFileExtension(absoluteFilepath, callbackArgs);
         }
-        const foundConfigFile = this.findConfigFileInDirectory(absoluteFilepath, fileBasename);
+        filename = fileBasename + fileExtension;
+        const foundConfigFile = this.findConfigFileInDirectory(absoluteFilepath, filename);
         return this.loadConfigByFileExtension(foundConfigFile, callbackArgs);
     }
 
@@ -54,7 +55,7 @@ export class ConfigLoader<T> {
             throw new Error(`Cannot find any config files with valid extension in ${directoryPath}`);
         }
         return path.format({
-            dir: path.dirname(directoryPath),
+            dir: directoryPath,
             base: highestOrderConfigFile
         });
     }

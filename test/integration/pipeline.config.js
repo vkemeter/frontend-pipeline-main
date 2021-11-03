@@ -16,6 +16,16 @@ module.exports = {
                 jpg: true,
                 gif: true
             }
-        }
+        },
+        'BACKEND:SCSS': {
+            src: './src/scss/backend/main.scss',
+            dest: './dist/backend/css'
+        },
+        'BACKEND:JS': {
+            src: './src/js/backend/main.js',
+            dest: './dist/backend/js'
+        },
+        'MISC:CONFIG': true,
+        'MISC:CLEAN': true
     }
 }

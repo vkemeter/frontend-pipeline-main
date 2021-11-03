@@ -1,5 +1,5 @@
 import {TaskConfig} from '../types/tasks/BaseTask';
-import gulp from 'gulp';
+import * as gulp from 'gulp';
 import {TaskFunctionGenerator} from '../types/Tasks';
 
 const taskGenerator: TaskFunctionGenerator<TaskConfig> = (config) => {

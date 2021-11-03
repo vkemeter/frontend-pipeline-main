@@ -1,5 +1,6 @@
-import taskGenerator from './FrontendScss'
+import * as taskGenerator from './FrontendScss'
 
+// TODO: check this if it can be simplified
 /*const taskGenerator: TaskFunctionGenerator<TaskConfig> = (config) => {
     return () => {
         return gulp.src(config.src)

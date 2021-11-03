@@ -22,7 +22,8 @@
         "strictNullChecks": true,
         "strictFunctionTypes": true,
         "strictPropertyInitialization": true,
-        "esModuleInterop": true
+        "esModuleInterop": false,
+        "allowSyntheticDefaultImports": false
     },
     "include": [
         "src",

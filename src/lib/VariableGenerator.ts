@@ -1,38 +1,34 @@
-const VariableExporterRegistry = require('./variableExporter/VariableExporterRegistry');
+import {VariableExporterRegistry} from './variableExporter/VariableExporterRegistry'
+import {VariableConfig, VariableConfigurationEntry} from '../types/config/VariableConfig'
 
-class VariableGenerator {
-    static DEFINITION_VALUE_KEY = 'values';
-    static DEFINITION_EXPORT_KEY = 'export';
+export class VariableGenerator {
+    private static readonly DEFINITION_VALUE_KEY = 'values';
+    private static readonly DEFINITION_EXPORT_KEY = 'export';
 
-    /*generate(baseDefinitions) {
-        for (let definitionName in baseDefinitions) {
-            if(baseDefinitions.hasOwnProperty(definitionName)) {
-                console.debug(`Generating files for ${definitionName}`);
-                this._generateDefinition(baseDefinitions[definitionName]);
-            }
-        }
+    private readonly variableExporterRegistry = new VariableExporterRegistry();
+
+    constructor () {
+        this.variableExporterRegistry.loadDefaultExporter();
     }
 
-    _generateDefinition(variableDefinition) {
-        const definitionValues = variableDefinition[VariableGenerator.DEFINITION_VALUE_KEY];
-        const definitionExports = variableDefinition[VariableGenerator.DEFINITION_EXPORT_KEY];
-        for(let exportTarget in definitionExports) {
-            if(definitionExports.hasOwnProperty(exportTarget)) {
-                const exportConfig = definitionExports[exportTarget];
-                const exporter = this._findAndCreateExporterForTarget(exportTarget, exportConfig);
-                exporter?.generateValues(definitionValues);
-            }
-        }
+    generate(variableConfig: VariableConfig) {
+        Object.entries(variableConfig.config).forEach(([key, entry]) => {
+            console.debug(`Generating files for ${key}`);
+            this.processVariableConfigEntry(entry)
+        })
     }
 
-    _findAndCreateExporterForTarget(exportTarget, exportConfig) {
-        const Exporter = VariableExporterRegistry.get(exportTarget);
-        if(!Exporter) {
-            console.warn(`No exporter defined for ${exportTarget}`);
-            return;
-        }
-        return new Exporter(exportConfig);
-    }*/
+    private processVariableConfigEntry(variableDefinition: VariableConfigurationEntry) {
+        const variableValues = variableDefinition[VariableGenerator.DEFINITION_VALUE_KEY];
+        const variableExports = variableDefinition[VariableGenerator.DEFINITION_EXPORT_KEY];
+
+        Object.entries(variableExports).forEach(async ([exporterKey, targetPath]) => {
+            const exporter = this.variableExporterRegistry.get(exporterKey, targetPath);
+            if(!exporter) {
+                console.warn(`Used key ${exporterKey} has no registered Exporter. Will be ignored`);
+                return;
+            }
+            await exporter.generate(variableValues);
+        });
+    }
 }
-
-module.exports = VariableGenerator;

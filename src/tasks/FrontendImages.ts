@@ -1,7 +1,7 @@
 import {TaskFunctionGenerator} from '../types/Tasks'
 import {TaskFrontendImageConfig} from '../types/tasks/FrontendImageTask'
-import gulp from 'gulp'
-import gulpImagemin from 'gulp-imagemin'
+import * as gulp from 'gulp'
+import * as gulpImagemin from 'gulp-imagemin'
 import {Plugin} from 'imagemin'
 
 function getPluginByKey(key: string, pluginConfig?: any): Plugin {

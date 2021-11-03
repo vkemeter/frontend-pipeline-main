@@ -1,5 +1,13 @@
-import {AbstractVariableExporter} from '../AbstractVariableExporter';
+import {AbstractVariableExporter} from '../AbstractVariableExporter'
 
-export class SassVariableExporter extends AbstractVariableExporter {
+class SassVariableExporter extends AbstractVariableExporter {
     public static readonly TARGET_EXPORT_KEY = 'scss'
+
+    protected variablePrefix = '$'
+    protected variableAssignment = '='
+    protected mapStart = '('
+    protected mapEnd = ')'
+    protected endWithSemicolon = true
 }
+
+export = SassVariableExporter

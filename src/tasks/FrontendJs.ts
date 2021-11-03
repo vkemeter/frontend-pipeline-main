@@ -1,7 +1,7 @@
 import {TaskFunctionGenerator} from '../types/Tasks';
 import {TaskFrontendJsConfig} from '../types/tasks/FrontendJsTask';
-import gulp from 'gulp';
-import webpackStream from 'webpack-stream';
+import * as gulp from 'gulp';
+import * as webpackStream from 'webpack-stream';
 import {generateWebpackConfig} from '../assets/webpackConfiguration';
 
 const taskGenerator: TaskFunctionGenerator<TaskFrontendJsConfig> = (config) => {

@@ -20,7 +20,7 @@ export interface DefaultTasks {
 export class DefaultConfig {
     private static readonly DEFAULT_SRC_FOLDER = process.env.PIPELINE_SRC_FOLDER || 'Src/';
     private static readonly DEFAULT_DEST_FOLDER = process.env.PIPELINE_DEST_FOLDER || '../Resources/Public/';
-    private static readonly DEFAULT_VARIABLES_FILENAME = process.env.PIPELINE_VARIABLES_FILENAME || 'variables.config.js';
+    private static readonly DEFAULT_VARIABLES_FILENAME = process.env.PIPELINE_VARIABLES_FILENAME || 'variables.config';
     private static readonly DEFAULT_ENVIRONMENT: Environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
     private static readonly DEFAULT_TASK_PATH = process.env.PIPELINE_TASK_PATH || path.join(__dirname, './tasks');
     private static readonly DEFAULT_TASK_FILE_EXTENSION = process.env.PIPELINE_TASK_PATH || '.js';

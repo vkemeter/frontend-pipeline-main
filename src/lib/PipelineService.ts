@@ -79,11 +79,10 @@ export class PipelineService<Tasks extends {}> {
                 taskPath: this.pipelineConfig?.tasksPath,
                 taskFileExtension: this.pipelineConfig?.tasksFileExtension,
             });
-            const enabledTasks = Object.keys(this.pipelineConfig.tasks).filter(taskName => {
+            Object.keys(this.pipelineConfig.tasks).filter(taskName => {
                 const config = this.pipelineConfig!.tasks[<keyof Tasks>taskName] as TaskConfig | false;
                 return !(!config || config.enabled === false);
-            });
-            enabledTasks.forEach((key) => {
+            }).forEach((key) => {
                 const config = this.pipelineConfig!.tasks[<keyof Tasks>key];
                 const taskGenerator = taskRegistry.get(<keyof Tasks>key);
                 if (!taskGenerator) {

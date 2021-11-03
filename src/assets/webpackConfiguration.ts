@@ -1,7 +1,7 @@
 import {Configuration, LoaderOptionsPlugin} from 'webpack'
 import {Environment} from '../types/config/PipelineConfig'
 import * as path from 'path'
-import TerserPlugin from 'terser-webpack-plugin'
+import * as TerserPlugin from 'terser-webpack-plugin'
 import babelConfiguration from './babelConfiguration'
 import BabelEsmPlugin from 'babel-esm-plugin'
 
