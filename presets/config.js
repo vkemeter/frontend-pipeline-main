@@ -69,6 +69,8 @@ module.exports = function () {
                 enabled: true,
                 src: build + '/Src/JavaScript/Main.js',
                 dest: theme + '/Resources/Public/JavaScript',
+                file: 'Main.js', // optional
+                minify: true,
                 watch: build + '/Src/JavaScript/**/*.js',
                 includeJquery: true,
                 modules: [
