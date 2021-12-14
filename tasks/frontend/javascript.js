@@ -24,16 +24,22 @@ module.exports = function(done) {
         _config().frontend.javascript.src
     );
 
-    return _gulp.src(modules)
+    let _return = _gulp.src(modules)
         .pipe(_sourcemaps.init())
         .pipe(_babel({
             presets: ['@babel/env']
         }))
-        .pipe(_concat('Main.js'))
-        .pipe(_rename({ suffix: '.min' }))
-        .pipe(_uglify())
+        .pipe(_concat(_config().frontend.javascript.file ? _config().frontend.javascript.file : 'Main.js'));
+
+    if (_config().frontend.javascript.minify) {
+        _return.pipe(_rename({ suffix: '.min' }));
+    }
+
+    _return.pipe(_uglify())
         .pipe(_sourcemaps.write('.'))
         .pipe(_gulp.dest(_config().frontend.javascript.dest));
+
+    return _return;
 };
 
 module.exports.alias = 'Frontend:JS';
