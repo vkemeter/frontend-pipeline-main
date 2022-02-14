@@ -3,7 +3,7 @@
  * used in px-to-rem mixin
  */
 @function rem($px, $unit: rem, $bp: 'default') {
-  $baseline_px: _get($base-font-size, $bp);
+  $baseline_px: __get($base-font-size, $bp);
   $baseline_rem: strip-unit($baseline_px) / strip-unit(__get($base-font-size, 'default'));
   $px: strip-unit($px);
   $rem: $px / $baseline_rem;

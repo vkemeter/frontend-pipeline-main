@@ -7,6 +7,6 @@
  */
 @each $key, $value in $theme-colors {
   .color-#{$key} {
-    color: _get($theme-colors, $key);
+    color: __get($theme-colors, $key);
   }
 }

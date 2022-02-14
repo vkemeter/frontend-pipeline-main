@@ -1,0 +1,944 @@
+$__const__: ();
+$__current-scope__: null;
+$__undefined__: '__undefined-#{unique-id()}__';
+$__static__: ();
+
+@function __to-keys($keys, $map) {
+  @if type-of($keys) == 'string' {
+    @if not (type-of($map) == 'map' and map-has-key($map, $keys)) {
+      $keys: __string-split($keys, '.');
+    }
+  }
+
+  @return $keys;
+}
+
+@function __string-split($string, $delimiter: '', $guard: null, $args...) {
+  @if $guard and __is-iteratee-call($string, $delimiter, $guard) {
+    $delimiter: '';
+  }
+
+  $string: __to-string($string);
+
+  @if not $delimiter
+    or str-length($delimiter) == 0
+    or $delimiter == '' {
+    @return __to-list($string);
+  }
+
+  $delimiter-index: str-index($string, $delimiter);
+
+  @if not $delimiter-index {
+    @return append((), $string);
+  }
+
+  @return join(
+                  str-slice($string, 1, $delimiter-index - 1),
+                  __string-split(
+                                  str-slice($string, $delimiter-index + str-length($delimiter)),
+                                  $delimiter
+                  )
+  );
+}
+
+@function __is-iteratee-call($value: null, $index: null, $map: null, $args...) {
+  @if not __is-map-like($map)
+    or length($args) > 0 {
+    @return false;
+  }
+
+  $type: type-of($index);
+  $prereq: false;
+
+  @if ($type == 'number') {
+    $length: length($map);
+    $prereq: (__is-length($length) and __is-index($index, $length));
+  } @else {
+    $prereq: ($type == 'string');
+  }
+
+  @return if($prereq, __get($map, $index) == $value, false);
+}
+
+@function __to-string($value, $args...) {
+  @if __is-string($value) {
+    @return $value;
+  }
+
+  @if $value == null {
+    @return '';
+  }
+
+  @return inspect($value);
+}
+
+@function __to-list($value) {
+  $result: ();
+
+  @if __is-map($value) {
+    @if __list-some(map-keys($value), __is-string) {
+      @return map-values($value);
+    }
+
+    @for $index from 1 through max(map-keys($value)...) {
+      $map-value: __get($value, $index);
+      $result: append($result, $map-value);
+    }
+
+    @return $result;
+  }
+
+  @if __is-string($value) {
+    @if str-length($value) >= 1 {
+      @for $index from 1 through str-length($value) {
+        $result: append($result, unquote(str-slice($value, $index, $index)));
+      }
+    }
+
+    @return $result;
+  }
+
+  @if __is-list-like($value) {
+    @each $item in $value {
+      $result: append($result, $item);
+    }
+  }
+
+  @return $result;
+}
+
+@function __is-map-like($value, $args...) {
+  @return $value and index('map' 'list' 'arglist', type-of($value)) != null;
+}
+
+@function __is-length($value) {
+  @return type-of($value) == 'number'
+    and $value > -1
+    and $value % 1 == 0;
+}
+
+@function __is-index($value, $length: null) {
+  $value: __parse-float($value);
+
+  @return $value > 0
+    and $value % 1 == 0
+    and ($length == null or $value <= $length);
+}
+
+@function __is-string($value, $args...) {
+  @return type-of($value) == 'string';
+}
+
+@function __is-map($value, $args...) {
+  @return type-of($value) == 'map';
+}
+
+@function __list-some($list, $predicate) {
+  $index: 1;
+  $length: length($list);
+
+  @while ($index <= $length) {
+    $value: nth($list, $index);
+    $iteration: __exec($predicate, $value, $index, $list);
+
+    @if (__is-truthy($iteration)) {
+      @return true;
+    }
+
+    $index: $index + 1;
+  }
+
+  @return false;
+}
+
+@function __is-list-like($value, $args...) {
+  @return __is-list($value) or __is-arglist($value);
+}
+
+@function __parse-float($string, $radix: 10) {
+  @if type-of($string) != 'string' {
+    @return $string;
+  }
+
+  @if __is-falsey($string) {
+    @return 0;
+  }
+
+  $string: __trim($string);
+  $result: 0;
+  $exponent: 0;
+  $decimal: false;
+  $multiplier: if(__starts-with($string, '-'), -1, 1);
+
+  $char-min: __get-char-code(0);
+  $char-max: $char-min + 9;
+  $char-decimal: __get-char-code('.');
+
+  @each $char-code in __map($string, '__get-char-code') {
+    @if $char-code >= $char-min and $char-code <= $char-max {
+      $result: ($radix * $result) + ($char-code - $char-min);
+
+      @if $decimal {
+        $exponent: $exponent + 1;
+      }
+    } @else if $char-code == $char-decimal {
+      $decimal: true;
+    }
+  }
+
+  $unit: __unit($string);
+
+  @return $multiplier * $result / __math-pow($radix, $exponent) * $unit;
+}
+
+@function __exec($function, $args...) {
+  @if function-exists($function) {
+    @return call(get_function($function), $args...);
+  }
+
+  @return __call($function, null, $args...);
+}
+
+@function __is-truthy($value) {
+  @return $value and not __is-falsey($value);
+}
+
+@function __is-list($value, $args...) {
+  @return type-of($value) == 'list';
+}
+
+@function __is-arglist($value, $args...) {
+  @return type-of($value) == 'arglist';
+}
+
+@function __is-falsey($value) {
+  @if $value == null
+    or $value == ''
+    or $value == ""
+    or $value == $__undefined__
+    or $value == 0
+    or (
+        type-of($value) == 'number'
+        and unit($value) == '%'
+        and $value == 0%)
+    or not $value {
+    @return true;
+  }
+
+  @return false;
+}
+
+@function __trim($string, $chars: null, $guard: null) {
+  $string: __trim-left($string, $chars, $guard);
+  $string: __trim-right($string, $chars, $guard);
+
+  @return $string;
+}
+
+@function __starts-with($string, $target, $position: 1) {
+  @if __is-list-like($target) {
+    $result: false;
+
+    @each $target-string in $target {
+      $result: __either($result, __starts-with($string, $target-string, $position));
+    }
+
+    @return $result;
+  }
+
+  $string: __base-to-string($string);
+  $target: __base-to-string($target);
+  $position: if(__is-falsey($position), 0, $position);
+  $position: min(if($position <= 0, 1, $position), str-length($string));
+
+  @return if($target == '',
+          true,
+          __string-last-index-of($string, $target, $position) == $position);
+}
+
+@function __get-char-code($char, $args...) {
+  $chars: __const('ASCII_PRINTABLE');
+  $char: __to-string($char);
+
+  @if not $char or $char == '' {
+    @return null;
+  }
+
+  @each $char-code, $char-value in $chars {
+    @if $char == $char-value {
+      @return $char-code;
+    }
+  }
+
+  @return null;
+}
+
+@function __map($collection, $iteratee: '__identity', $this-arg: null) {
+  @if not __is-iterable($collection) {
+    $collection: ();
+  }
+
+  $collection: if(__is-string($collection), __to-list($collection), $collection);
+  $function: if(__is-list($collection), '__list-map', '__base-map');
+  $iteratee: __get-callback($iteratee, $this-arg, 3);
+
+  @return __exec($function, $collection, $iteratee);
+}
+
+@function __unit($value, $args...) {
+  $units: __const('UNITS');
+
+  @if __is-number($value) {
+    @return unit($value);
+  } @else if __is-string($value) {
+    @each $string-unit, $number-unit in $units {
+      @if __ends-with($value, $string-unit) {
+        @return $number-unit;
+      }
+    }
+  }
+
+  @return 1;
+}
+
+@function __math-pow($number, $exp) {
+  @if (round($exp) != $exp) {
+    @return __math-exp($exp * __math-ln($number));
+  }
+
+  // Traditional method for integers
+  $value: 1;
+
+  @if $exp > 0 {
+    @for $i from 1 through $exp {
+      $value: $value * $number;
+    }
+  }
+  @else if $exp < 0 {
+    @for $i from 1 through -$exp {
+      $value: $value / $number;
+    }
+  }
+
+  @return $value;
+}
+
+@function __call($method, $this-arg: $__current-scope__, $args...) {
+  $function-name: __function-name($method);
+  $scope-id: __function-scope($method);
+  $previous-scope: $__current-scope__;
+  $scope-id: if($scope-id, $scope-id, $this-arg);
+
+  @if $scope-id {
+    $__current-scope__: $scope-id !global;
+  }
+
+  $method-name: __this($function-name);
+
+  @if $method-name != null and __function-exists(__this($function-name)) {
+    $function-name: __this($function-name);
+  } @else if not ($function-name and __function-exists($function-name)) {
+    $__current-scope__: $previous-scope !global;
+
+    @error 'Function #{$function-name} does not exist.';
+    @return null;
+  }
+
+  $result: call(get-function($function-name), $args...);
+  $__current-scope__: $previous-scope !global;
+
+  @return $result;
+}
+
+@function __trim-left($string, $chars: null, $guard: null) {
+  @if $guard {
+    @return __trim-left($string);
+  }
+
+  $string: __to-string($string);
+  $chars-list: __string-split(if($chars, __to-string($chars), ' '));
+
+  @while index($chars-list, str-slice($string, 0, 1)) != null {
+    $string: str-slice($string, 2);
+  }
+
+  @return $string;
+}
+
+@function __trim-right($string, $chars: null, $guard: null) {
+  @if $guard {
+    @return __trim-right($string);
+  }
+
+  $string: __to-string($string);
+  $chars-list: __string-split(if($chars, __to-string($chars), ' '));
+
+  @while index($chars-list, str-slice($string, -1)) != null {
+    $string: str-slice($string, 0, -2);
+  }
+
+  @return $string;
+}
+
+@function __either($this, $that: null, $predicate: '__is-truthy') {
+  $this-bool: __exec(__base-callback($predicate), $this);
+
+  @return if($this-bool, $this, $that);
+}
+
+@function __base-to-string($value) {
+  @if __is-string($value) {
+    @return $value;
+  }
+
+  @return if($value == null, '', $value + '');
+}
+
+@function __string-last-index-of($string, $target, $position: 0) {
+  $current-index: __string-index-of($string, $target, $position);
+  $last-index: -1;
+
+  @while $current-index != -1 {
+    $last-index: $current-index;
+    $current-index: __string-index-of($string, $target, $last-index + 1);
+  }
+
+  @return $last-index;
+}
+
+@function __const($keys) {
+  @return __get($__const__, $keys);
+}
+
+@function __is-iterable($value, $args...) {
+  @return __is-map-like($value) or __is-string($value);
+}
+
+@function __get-callback($function: __identity, $this-arg: null, $arg-count: null) {
+  $result: if($arg-count, __exec('__base-callback', $function, $this-arg, $arg-count), '__base-callback');
+
+  @return $result;
+}
+
+@function __is-number($value, $args...) {
+  @return type-of($value) == 'number';
+}
+
+@function __ends-with($string, $target: $__undefined__, $position: str-length($string)) {
+  @if __is-undefined($target) {
+    @return false;
+  }
+
+  $string: __base-to-string($string);
+  $target: __base-to-string($target);
+  $length: str-length($string);
+  $position: if(__is-falsey($position), 0, $position);
+  $position: min(if($position < 0, 0, $position), $length) + 1 - str-length($target);
+
+  @return if($position >= 1,
+          __string-index-of($string, $target, $position) == $position,
+          false);
+}
+
+@function __math-exp($value) {
+  $result: __math-summation(__math-exp-maclaurin, $value, 0, 100);
+  @return $result;
+}
+
+@function __math-ln($value) {
+  $ten-exp: 1;
+  $ln-ten: 2.30258509;
+
+  @while ($value > __math-pow(10, $ten-exp)) {
+    $ten-exp: $ten-exp + 1;
+  }
+
+  $value: $value / __math-pow(10, $ten-exp);
+
+  $result: __math-summation(__math-ln-maclaurin, $value, 1, 100);
+
+  @return $result + $ten-exp * $ln-ten;
+}
+
+@function __function-name($function) {
+  @if type-of($function) != 'string' {
+    @return null;
+  }
+
+  $scope-index: str-index($function, '@');
+
+  @return if($scope-index, str-slice($function, 1, $scope-index - 1), $function);
+}
+
+@function __function-scope($function) {
+  @if type-of($function) != 'string' {
+    @return null;
+  }
+
+  $scope-index: str-index($function, '@');
+  $scope-id: false;
+
+  @if $scope-index {
+    $scope-id: str-slice($function, $scope-index);
+  }
+
+  @return $scope-id;
+}
+
+@function __this($key: $__undefined__, $value: $__undefined__) {
+  @if __is-undefined($key) and __is-undefined($value) {
+    @return _static-get($__current-scope__);
+  }
+
+  @if __is-undefined($value) {
+    @return _static-get($__current-scope__ $key);
+  }
+
+  @return _static-set($__current-scope__ $key, $value);
+}
+
+@function __function-exists($function, $args...) {
+  @if type-of($function) != 'string' {
+    @return false;
+  }
+
+  @if index(('e', 'pi'), $function) {
+    @return false;
+  }
+
+  @return if(function-exists($function),
+          true,
+          function-exists(__function-name($function))
+  );
+}
+
+@function __base-callback($function: __identity, $this-arg: $__undefined__, $arg-count: null) {
+  $type: if(__function-exists($function), 'function', type-of($function));
+
+  @if ($function == null) {
+    @return '__identity';
+  }
+
+  @if $type == 'list' {
+    $shifted-arguments: set-nth($function, 1, null);
+    $function: nth($function, 1);
+    $_: __scope((
+            'function': $function,
+            'this-arg': $this-arg,
+            'shifted-arguments': $shifted-arguments
+    ));
+    $base-callback-shifted: __bind('__base-callback-shifted');
+    $_: __scope(false);
+
+    @return $base-callback-shifted;
+  }
+
+  @if __is-native($function) {
+    @return __ary($function, 1);
+  }
+
+  @if $type == 'function' {
+    @return if(not __is-undefined($this-arg) and __is-function($function),
+            __bind-callback($function, $this-arg, $arg-count),
+            $function);
+  }
+
+  @return if($type == 'map',
+          __base-matches($function, __is-falsey($arg-count)),
+          __base-property($function));
+}
+
+@function __string-index-of($string, $target, $position: 0) {
+  $string: str-slice($string, $position);
+  $string-index: str-index($string, $target);
+
+  @if not $string-index {
+    @return -1;
+  }
+
+  @return $string-index + $position - 1;
+}
+
+@function __get($map, $keys, $default: null) {
+  $value-type: type-of($map);
+
+  $original-key: $keys;
+  $keys: __to-keys($keys, $map);
+
+  @if $value-type == 'string' {
+    @return __string-get($map, nth($keys, 1), $default);
+  }
+
+  @if $value-type != 'list' and $value-type != 'map' {
+    @return $default;
+  }
+
+  @if $value-type == 'list' {
+    $index: nth($keys, 1);
+
+    $map: __list-get($map, $index);
+  } @else if $value-type == 'map' {
+    // Check if map has original key
+    @if map-has-key($map, $original-key) {
+      @return map-get($map, $original-key);
+    }
+
+    $key: nth($keys, 1);
+
+    @if map-has-key($map, $key) {
+      $map: map-get($map, nth($keys, 1));
+    } @else {
+      @return $default;
+    }
+  }
+
+  $keys: __pop($keys);
+
+  @if __is-falsey($map) and length($keys) > 0 {
+    @return $default;
+  }
+
+  @if length($keys) == 0 {
+    @return if(__is-undefined($map), $default, $map);
+  }
+
+  @return __get($map, $keys, $default);
+}
+
+@function __is-undefined($value, $args...) {
+  @return if(global-variable-exists('__undefined__'), $value == $__undefined__, false);
+}
+
+@function __math-summation($iteratee, $input, $initial: 0, $limit: 100) {
+  $sum: 0;
+
+  @for $index from $initial to $limit {
+    $sum: $sum + call($iteratee, $input, $index);
+  }
+
+  @return $sum;
+}
+
+@function __math-exp-maclaurin($x, $n) {
+  $result: __math-pow($x, $n) / __math-factorial($n);
+  @return $result;
+}
+
+@function _static-get($keys) {
+  @return __get($__static__, $keys);
+}
+
+@function _static-set($keys, $value) {
+  $__static__: __set($__static__, $keys, $value) !global;
+
+  @return __get($__static__, $keys);
+}
+
+@function __identity($value: null, $args...) {
+  @return $value;
+}
+
+@function __scope($map: ()) {
+  @if $map == false {
+    $scope: _static-get($__current-scope__);
+    $__current-scope__: __get($scope, '_parent') !global;
+
+    @return true;
+  }
+
+  $scope: __new(Scope);
+  $scope-id: __get($scope, '_id');
+  $__current-scope__: $scope-id !global;
+
+  @if __is-map($map) {
+    $scope: map-merge($scope, $map);
+  }
+
+  @return _static-set($__current-scope__, $scope);
+}
+
+@function __is-native($value, $args...) {
+  @return __is-function($value) and index(__const('NATIVE_FUNCTIONS'), $value) != null;
+}
+
+@function __ary($function, $n: 1, $guard: null) {
+  @if not __is-function($function) {
+    @return '__noop';
+  }
+
+  $n: if($n >= 0, $n, 0);
+  $_: __scope((
+          'function': $function,
+          'n': $n
+  ));
+  $ary-function: __bind('__ary-function');
+  $_: __scope(false);
+
+  @return $ary-function;
+}
+
+@function __is-function($value, $args...) {
+  @return __function-exists($value);
+}
+
+@function __bind-callback($function, $this-arg: null, $arg-count: null) {
+  @if (not __function-exists($function)) {
+    @return '__identity';
+  }
+
+  @if ($this-arg == null) {
+    @return $function;
+  }
+
+  $_: __scope((
+          'function': $function,
+          'this-arg': $this-arg
+  ));
+
+  $arg-count-case: (
+          1: '__bind-callback-1',
+          3: '__bind-callback-3',
+          4: '__bind-callback-4',
+          5: '__bind-callback-5'
+  );
+
+  @if ($arg-count > 5) {
+    @return '__bind-callback-any';
+  }
+
+  $result: __bind(__get($arg-count-case, $arg-count), $this-arg);
+  $_: __scope(false);
+
+  @return $result;
+}
+
+@function __base-matches($source, $is-cloned: false) {
+  $props: map-keys($source);
+  $length: length($props);
+  $_: __scope();
+
+  @if ($length == 1) {
+    $key: nth($props, 1);
+    $value: __get($source, $key);
+    $_: __this('key', $key);
+    $_: __this('value', $value);
+
+    @if (__is-strict-comparable($value)) {
+      $result: __bind('__base-matches-function-1');
+      $_: __scope(false);
+
+      @return $result;
+    }
+  }
+
+  $values: (); // list
+  $strict-compare-flags: (); // list
+
+  @while ($length > 0) {
+    $value: __get($source, nth($props, $length));
+    $values: __set($values, $length, $value);
+    $strict-compare-flags: __set($strict-compare-flags, $length, __is-strict-comparable($value));
+    $length: $length - 1;
+  }
+
+  $values: __to-list($values);
+  $strict-compare-flags: __to-list($strict-compare-flags);
+  $_: __this('props', $props);
+  $_: __this('values', $values);
+  $_: __this('strict-compare-flags', $strict-compare-flags);
+  $result: __bind('__base-matches-function-2');
+  $_: __scope(false);
+
+  @return $result;
+}
+
+@function __base-property($key) {
+  $_: __scope((
+          'key': $key
+  ));
+  $base-property-function: __bind('__base-property-function');
+  $_: __scope(false);
+
+  @return $base-property-function;
+}
+
+@function __string-get($string, $index, $default: null) {
+  $index: __parse-float($index);
+
+  @if type-of($index) != 'number' {
+    @error '[__string-get] $index #{inspect($index)} for $string #{inspect($string)} is not a number.';
+    @return $default;
+  }
+
+  @if $index > str-length($string) {
+    @return $default;
+  }
+
+  @return str-slice($string, $index, $index);
+}
+
+@function __list-get($list, $index) {
+  $index: __parse-float($index);
+
+  @if type-of($index) != 'number'
+        or $index < 1 {
+    @return $__undefined__;
+  }
+
+  @if $index > length($list) {
+    @return $__undefined__;
+  }
+
+  @return nth($list, $index);
+}
+
+@function __pop($list) {
+  $length: length($list);
+  $index: 2;
+  $popped-list: ();
+
+  @while $index <= $length {
+    $popped-list: append($popped-list, nth($list, $index));
+    $index: $index + 1;
+  }
+
+  @return $popped-list;
+}
+
+@function __math-factorial($value) {
+  @if $value == 0 {
+    @return 1;
+  }
+
+  $result: 1;
+
+  @for $index from 1 through $value {
+    $result: $result * $index;
+  }
+
+  @return $result;
+}
+
+@function __set($map, $keys, $value) {
+  $property: nth($keys, 1);
+  $keys: __pop(__to-keys($keys, $map));
+  $child-map: null;
+
+  @if type-of($map) == 'list' and length($map) > 0 {
+    @if $property > length($map) {
+      $child-map: ();
+    } @else {
+      $child-map: nth($map, $property);
+    }
+  } @else if map-has-key($map, $property) {
+    $child-map: map-get($map, $property);
+  } @else {
+    $child-map: ();
+  }
+
+  @if length($keys) == 0 {
+    @if type-of($map) == 'list' and length($map) > 0 {
+      @return __set-list($map, $property, $value);
+    }
+
+    @return map-merge($map, (
+            $property: $value,
+    ));
+  }
+
+  @if type-of($map) == 'list' and length($map) > 0 {
+    @return __set-list($map, $property, __set($child-map, $keys, $value));
+  }
+
+  @return map-merge($map, (
+          $property: __set($child-map, $keys, $value),
+  ));
+}
+
+@function __new($type, $params: (), $extends: false, $defaults: ()) {
+  $instance-meta: (
+          '_type': $type,
+          '_extends': $extends
+  );
+
+  $instance: ();
+
+  @if $defaults {
+    $instance: map-merge($instance, $defaults);
+  }
+
+  @if $extends {
+    $instance: map-merge($instance, __new($extends, $params));
+  }
+
+  $instance: map-merge($instance, call(get_function($type), $params...));
+  $instance: map-merge($instance, $instance-meta);
+
+  @return $instance;
+}
+
+@function __bind($function, $this-arg: $__current-scope__, $arguments...) {
+  @if __is-falsey($this-arg) {
+    $this-arg: '';
+  }
+
+  @if __is-map($this-arg) {
+    $scope: __scope($this-arg);
+    $_: __scope(false);
+
+    $this-arg: __get($scope, '_id');
+  }
+
+  $function: '#{$function}#{$this-arg}';
+
+  @if length($arguments) > 0 {
+    @return __partial($function, $arguments...);
+  }
+
+  @return $function;
+}
+
+@function __is-strict-comparable($value) {
+  @return not __is-map-like($value);
+}
+
+@function __set-list($list, $index, $value) {
+  $length: length($list);
+
+  @if type-of($index) != 'number' {
+    @error '[__set-list] $index #{$index} for list #{inspect($list)} is not a number.';
+    @return null;
+  }
+
+  @if $index <= $length {
+    @return set-nth($list, $index, $value);
+  }
+
+  @while $index > $length + 1 {
+    $list: append($list, null);
+
+    $index: $index - 1;
+  }
+
+  $list: append($list, $value);
+
+  @return $list;
+}
+
+@function __partial($func, $arguments...) {
+  $partials: $arguments;
+  $_: __scope((
+          'partials': $partials,
+          'func': $func
+  ));
+  $partial-wrapper: __bind('__partial-wrapper');
+  $_: __scope(false);
+
+  @return $partial-wrapper;
+}
+
+@mixin __const($key, $value) {
+  @if not map-has-key($__const__, $key) {
+    $__const__: __set($__const__, $key, $value) !global;
+  }
+}
