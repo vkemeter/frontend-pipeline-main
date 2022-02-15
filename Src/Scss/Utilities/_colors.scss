@@ -6,7 +6,7 @@
  * class="color-primary"
  */
 @each $key, $value in $theme-colors {
-  .color-#{$key} {
+  .color-#{""+ $key} {
     color: __get($theme-colors, $key);
   }
 }
