@@ -21,4 +21,4 @@ module.exports = function(done) {
 };
 
 module.exports.alias = 'Frontend:IE11';
-module.exports.enabled = _config().frontend.javascript.enabled;
+module.exports.enabled = _config().frontend.javascript.ie11Enabled;
