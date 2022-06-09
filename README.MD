@@ -1,13 +1,10 @@
 # frontend pipeline main package
 
-- requires node 14
+- requires node 16
 - gulp
-- gulp-sass
-- node-sass
-- gulp-glass 
-- jquery 3.5.1 included (can be removed via config file)
-- sassdash
-- bootstrap 4.5.3
+- gulp-dart-sass
+- jquery 3.6.0 included (can be removed via config file)
+- bootstrap 5
 - family.scss
 - real favicon generator
 
