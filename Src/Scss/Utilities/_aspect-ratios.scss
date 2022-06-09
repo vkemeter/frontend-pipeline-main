@@ -23,6 +23,8 @@
  *
  * have fun. kthxbye.
  */
+@use "sass:math";
+
 .aspect-ratio {
   @each $breakpoint in map-keys($grid-breakpoints) {
     &-#{$breakpoint} {
@@ -62,14 +64,14 @@
       @if $breakpoint == 'xs' {
         &-#{$aspect-ratio-x}by#{$aspect-ratio-y} {
           &::before {
-            padding-top: percentage($aspect-ratio-y / $aspect-ratio-x);
+            padding-top: percentage(math.div($aspect-ratio-y, $aspect-ratio-x));
           }
         }
       } @else {
         &-#{$breakpoint}-#{$aspect-ratio-x}by#{$aspect-ratio-y} {
           &::before {
             @include media-breakpoint-up($breakpoint) {
-              padding-top: percentage($aspect-ratio-y / $aspect-ratio-x);
+              padding-top: percentage(math.div($aspect-ratio-y, $aspect-ratio-x));
             }
           }
         }
