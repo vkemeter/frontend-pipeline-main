@@ -76,6 +76,7 @@ module.exports = function () {
                 modules: [
                     build +'/node_modules/frontend-pipeline-main/Src/JavaScript/Plugins/plugin.Breakoints.js',
                 ],
+                ie11Enabled: false,
                 ie11: build + '/Src/JavaScript/IE11.js',
                 ie11Modules: []
             },
