@@ -1,13 +1,13 @@
 {
   "name": "frontend-pipeline-main",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A Frontend Pipeline Main Package. Require this in Your package.json and your are ready to go.",
   "engines": {
     "node": ">=16.15.1"
   },
   "main": "index.js",
   "dependencies": {
-    "@agostone/gulp-glass": "https://github.com/vkemeter/gulp-glass.git",
+    "@agostone/gulp-glass": "https://github.com/vkemeter/gulp-glass.git#1.1.0",
     "@babel/core": "^7.14.0",
     "@babel/preset-env": "^7.14.1",
     "@babel/runtime": "^7.13.10",
