@@ -1,6 +1,6 @@
 {
   "name": "frontend-pipeline-main",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A Frontend Pipeline Main Package. Require this in Your package.json and your are ready to go.",
   "engines": {
     "node": ">=16.15.1"

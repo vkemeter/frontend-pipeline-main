@@ -20,9 +20,7 @@ module.exports = function(done) {
             .pipe(_sourcemaps.init())
             .pipe(scssFilter)
             .pipe(_glob())
-            .pipe(_sass({
-                outputStyle: 'compressed'
-            }).on('error', _sass.logError))
+            .pipe(_sass().on('error', _sass.logError))
             .pipe(scssFilter.restore)
             .pipe(_concat('Styles.css'))
             .pipe(_cleanCss({
