@@ -16,6 +16,15 @@ module.exports = function(done) {
 
     const scssFilter = _filter('**/*.scss', {restore: true});
 
+    const cleanCssConfig = {
+        level: {
+            1: {
+                tidySelectors: false
+            }
+        },
+        minify: true
+    };
+
     return _gulp.src(_config().frontend.css.src)
             .pipe(_sourcemaps.init())
             .pipe(scssFilter)
@@ -23,10 +32,7 @@ module.exports = function(done) {
             .pipe(_sass().on('error', _sass.logError))
             .pipe(scssFilter.restore)
             .pipe(_concat('Styles.css'))
-            .pipe(_cleanCss({
-                level: 1,
-                minify: true
-            }))
+            .pipe(_cleanCss(_config().frontend.css.cleanCssConfig ?? cleanCssConfig))
             .pipe(_prefix(_config().browserPrefix))
             .pipe(_rename({ suffix: '.min' }))
             .pipe(_sourcemaps.write('.'))
