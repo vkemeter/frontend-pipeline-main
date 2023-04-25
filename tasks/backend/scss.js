@@ -6,8 +6,6 @@ const _prefix = require('gulp-autoprefixer');
 const _glob = require('gulp-sass-glob');
 const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
 
-_sass.compiler = require('node-sass');
-
 /**
  * this task compiles the backend
  * scss files for the TYPO3 backend
