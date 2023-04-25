@@ -1,9 +1,9 @@
 {
   "name": "frontend-pipeline-main",
-  "version": "1.5.3",
+  "version": "1.5.3-node16",
   "description": "A Frontend Pipeline Main Package. Require this in Your package.json and your are ready to go.",
   "engines": {
-    "node": ">=14.15.0"
+    "node": ">=16.15.1"
   },
   "main": "index.js",
   "dependencies": {
@@ -28,7 +28,6 @@
     "gulp-filter": "^6.0.0",
     "gulp-real-favicon": "^0.3.2",
     "gulp-rename": "^2.0.0",
-    "gulp-sass": "^4.1.0",
     "gulp-sass-glob": "^1.1.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
