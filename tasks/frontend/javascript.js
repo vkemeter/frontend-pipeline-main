@@ -3,7 +3,6 @@ const _rename = require('gulp-rename');
 const _concat = require('gulp-concat');
 const _uglify = require('gulp-uglify');
 const _sourcemaps = require('gulp-sourcemaps');
-const _babel = require('gulp-babel');
 const _config = require(__dirname.substring(0, __dirname.indexOf('node_modules')) +'config');
 
 module.exports = function(done) {
@@ -26,14 +25,8 @@ module.exports = function(done) {
 
     let _return = _gulp.src(modules)
         .pipe(_sourcemaps.init())
-        .pipe(_babel({
-            presets: ['@babel/env']
-        }))
-        .pipe(_concat(_config().frontend.javascript.file ? _config().frontend.javascript.file : 'Main.js'));
-
-    if (_config().frontend.javascript.minify) {
-        _return.pipe(_rename({ suffix: '.min' }));
-    }
+        .pipe(_concat(_config().frontend.javascript.file ? _config().frontend.javascript.file : 'Main.js'))
+        .pipe(_rename({ suffix: '.min' }));
 
     _return.pipe(_uglify())
         .pipe(_sourcemaps.write('.'))
