@@ -29,7 +29,11 @@ module.exports = function(done) {
             .pipe(_sourcemaps.init())
             .pipe(scssFilter)
             .pipe(_glob())
-            .pipe(_sass().on('error', _sass.logError))
+            .pipe(_sass().on('error', (e) => {
+                console.warn(e.message);
+                process.exit(1);
+                return false;
+            }))
             .pipe(scssFilter.restore)
             .pipe(_concat('Styles.css'))
             .pipe(_cleanCss(_config().frontend.css.cleanCssConfig ?? cleanCssConfig))
